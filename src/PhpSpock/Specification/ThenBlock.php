@@ -20,4 +20,8 @@ class ThenBlock {
     {
         return $this->expressions;
     }
+
+    public static function clazz() {
+        return get_called_class();
+    }
 }

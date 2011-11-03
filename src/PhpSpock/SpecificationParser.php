@@ -8,6 +8,10 @@
 namespace PhpSpock;
 
 use PhpSpock\SpecificationParser\AbstractParser;
+
+use \PhpSpock\SpecificationParser\SimpleBlockParser;
+use \PhpSpock\SpecificationParser\WhereBlockParser;
+use \PhpSpock\SpecificationParser\ThenBlockParser;
  
 class SpecificationParser extends AbstractParser {
 
@@ -35,7 +39,7 @@ class SpecificationParser extends AbstractParser {
 
         $body = trim(implode(array_slice(file($refl->getFileName()), $refl->getStartLine(), $refl->getEndLine() - $refl->getStartLine() - 1)));
         try {
-            $blocks = $this->parseBlocks($body);
+            $blocks = $this->splitOnBlocks($body);
             
         } catch(\Exception $e) {
             throw new ParseException('Can not parse function defined in file ' . $refl->getFileName() .' on line '.
@@ -47,10 +51,41 @@ class SpecificationParser extends AbstractParser {
         $spec->setRawBody($body);
         $spec->setRawBlocks($blocks);
 
+        $this->parseBlocks($blocks, $spec);
+
         return $spec;
     }
 
-    private function parseBlocks($body)
+    public function parseBlocks($blocks, $spec)
+    {
+        foreach ($blocks as $blockName => $blockCode) {
+
+            switch ($blockName) {
+
+                case 'setup':
+                    $parser = new SimpleBlockParser();
+                    $spec->setSetupBlock($parser->parse($blockCode));
+                    break;
+
+                case 'when':
+                    $parser = new SimpleBlockParser();
+                    $spec->setWhenBlock($parser->parse($blockCode));
+                    break;
+
+                case 'then':
+                    $parser = new ThenBlockParser();
+                    $spec->setThenBlock($parser->parse($blockCode));
+                    break;
+
+                case 'where':
+                    $parser = new WhereBlockParser();
+                    $spec->setWhereBlock($parser->parse($blockCode));
+                    break;
+            }
+        }
+    }
+
+    private function splitOnBlocks($body)
     {
         $allTokens = $this->tokenizeCode($body);
 

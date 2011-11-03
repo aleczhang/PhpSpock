@@ -21,4 +21,8 @@ class WhereBlock {
     {
         return $this->parametrizations;
     }
+
+    public static function clazz() {
+        return get_called_class();
+    }
 }

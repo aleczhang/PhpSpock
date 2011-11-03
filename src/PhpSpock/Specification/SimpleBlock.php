@@ -20,4 +20,8 @@ class SimpleBlock {
     {
         return $this->code;
     }
+
+    public static function clazz() {
+        return get_called_class();
+    }
 }

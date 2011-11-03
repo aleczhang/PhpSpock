@@ -85,6 +85,11 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('$sym | $result;
             \'!\' | \'123!\';
             \'4\' | \'1234\';', $blocks['where']);
+
+        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getSetupBlock());
+        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getWhenBlock());
+        $this->assertType('PhpSpock\Specification\ThenBlock', $result->getThenBlock());
+        $this->assertType('PhpSpock\Specification\WhereBlock', $result->getWhereBlock());
     }
 
     /**
