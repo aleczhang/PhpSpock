@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="tests/bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="PhpSpock Test Suite">
+            <directory>tests/PhpSpock/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/PhpSpock/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
