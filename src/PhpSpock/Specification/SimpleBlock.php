@@ -24,4 +24,9 @@ class SimpleBlock {
     public static function clazz() {
         return get_called_class();
     }
+
+    public function compileCode()
+    {
+        return $this->getCode();
+    }
 }

@@ -28,16 +28,16 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         $spec = new Specification();
         
         $setupBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('run')->with($spec)->mock();
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret = 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('run')->with($spec)->mock();
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
-                ->shouldReceive('run')->with($spec)->mock();
-
-        $whereBlock = \Mockery::mock(WhereBlock::clazz())
-                ->shouldReceive('run')->with($spec)->mock();
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret += 2;')->mock();
 
 
         $spec->setSetupBlock($setupBlock);
@@ -46,6 +46,11 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
 //        $spec->setWhereBlock($whereBlock);
 
-        $spec->run();
+
+        
+        $result = $spec->run();
+
+        $this->assertEquals(4, $result);
+
     }
 }

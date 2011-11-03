@@ -118,14 +118,25 @@ class Specification {
 
     public function run()
     {
+        $code = '';
+
         if ($this->setupBlock) {
-            $this->setupBlock->run($this);
+            $code .= $this->setupBlock->compileCode($this);
         }
         if ($this->whenBlock) {
-            $this->whenBlock->run($this);
+            $code .= $this->whenBlock->compileCode($this);
         }
         if ($this->thenBlock) {
-            $this->thenBlock->run($this);
+            $code .= $this->thenBlock->compileCode($this);
         }
+
+        // eval will be executed in it's own scope
+        $func = function() use($code) {
+            $_ret = null; // for testing
+            eval($code);
+            return $_ret;
+        };
+
+        return $func();
     }
 }

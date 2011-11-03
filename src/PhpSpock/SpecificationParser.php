@@ -27,7 +27,26 @@ class SpecificationParser extends AbstractParser {
             return $this->parseClosure($callback);
         }
 
+        if (is_array($callback) && count($callback) == 2) {
+            return $this->parseMethod($callback[0], $callback[1]);
+        }
+
         return null;
+    }
+
+
+    private function parseMethod($class, $method)
+    {
+        $refl = new \ReflectionMethod($class, $method);
+//        var_dump($refl->getFileName());
+//        var_dump($refl->getStartLine());
+//        var_dump($refl->getEndLine());
+
+        $body = trim(implode(array_slice(file($refl->getFileName()), $refl->getStartLine(), $refl->getEndLine() - $refl->getStartLine() - 1)));
+        
+        $spec = $this->createSpecification($body, $refl->getFileName(), $refl->getStartLine(), $refl->getEndLine());
+
+        return $spec;
     }
 
     private function parseClosure(\Closure $callback)
@@ -38,21 +57,27 @@ class SpecificationParser extends AbstractParser {
 //        var_dump($refl->getEndLine());
 
         $body = trim(implode(array_slice(file($refl->getFileName()), $refl->getStartLine(), $refl->getEndLine() - $refl->getStartLine() - 1)));
+
+        $spec = $this->createSpecification($body, $refl->getFileName(), $refl->getStartLine(), $refl->getEndLine());
+
+        return $spec;
+    }
+
+    private function createSpecification($body, $fileName, $lineStart, $lineEnd)
+    {
+        $body = preg_replace('/^\s*{/', '', $body); // fix for { on next line after function()
+
         try {
             $blocks = $this->splitOnBlocks($body);
-            
-        } catch(\Exception $e) {
-            throw new ParseException('Can not parse function defined in file ' . $refl->getFileName() .' on line '.
-                    $refl->getStartLine(), 0, $e);
-        }
 
+        } catch(\Exception $e) {
+            throw new ParseException('Can not parse function defined in file ' . $fileName .' on line '. $lineStart, 0, $e);
+        }
 
         $spec = new Specification();
         $spec->setRawBody($body);
         $spec->setRawBlocks($blocks);
-
         $this->parseBlocks($blocks, $spec);
-
         return $spec;
     }
 
