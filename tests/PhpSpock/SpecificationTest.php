@@ -53,4 +53,40 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $result);
 
     }
+
+
+
+    /**
+     * @test
+     */
+    public function executeSpecificationWith()
+    {
+        $spec = new Specification();
+
+        $setupBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret = 1;')->mock();
+
+        $whenBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret += 1;')->mock();
+
+        $thenBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->once()->with($spec)
+                ->andReturn('$_ret += 2;')->mock();
+
+
+        $spec->setSetupBlock($setupBlock);
+        $spec->setWhenBlock($whenBlock);
+        $spec->setThenBlock($thenBlock);
+
+//        $spec->setWhereBlock($whereBlock);
+
+
+
+        $result = $spec->run();
+
+        $this->assertEquals(4, $result);
+
+    }
 }
