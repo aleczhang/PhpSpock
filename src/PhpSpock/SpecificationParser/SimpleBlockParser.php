@@ -8,7 +8,7 @@
 namespace PhpSpock\SpecificationParser;
 use \PhpSpock\ParseException;
 
-class ThenBlockParser extends AbstractParser {
+class SimpleBlockParser extends AbstractParser {
 
     /**
      * @param $code
@@ -16,10 +16,8 @@ class ThenBlockParser extends AbstractParser {
      */
     public function parse($code) {
 
-        $lines = $this->splitCodeExpressions($code, false);
-
-        $block = new \PhpSpock\Specification\ThenBlock();
-        $block->setExpressions($lines);
+        $block = new \PhpSpock\Specification\SimpleBlock();
+        $block->setCode($code);
 
         return $block;
     }
