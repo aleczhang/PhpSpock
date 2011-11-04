@@ -19,32 +19,27 @@
  *
  **/
 /**
- * @author Alex Rudakov <alexandr.rudakov@modera.net>
+ * Date: 11/3/11
+ * Time: 1:29 PM
+ * @author Aleksandr Rudakov <ribozz@gmail.com>
  */
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../src/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
-    }
-});
+namespace PhpSpock\SpecificationParser;
+use \PhpSpock\ParseException;
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../lib/mockery/library/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
-    }
-});
+class SetupBlockParser extends AbstractParser {
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../lib/docrine-common/lib/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
+    /**
+     * @param $code
+     * @return \PhpSpock\Specification\SimpleBlock
+     */
+    public function parse($code) {
+
+        $lines = $this->splitCodeExpressions($code, false);
+
+        $block = new \PhpSpock\Specification\SetupBlock();
+        $block->setExpressions($lines);
+
+        return $block;
     }
-});
+}

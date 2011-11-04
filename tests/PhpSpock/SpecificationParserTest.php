@@ -221,6 +221,42 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
+    public function parseClassName()
+    {
+        $spec = function() {
+            /**
+             * @var $a
+             */
+
+            setup:
+            $a = new PhpSpock();
+
+            then:
+            'PhpSpock' == get_class($a);
+         };
+
+        $result = $this->parser->parse($spec);
+        $this->assertType('PhpSpock\Specification', $result);
+
+        $this->assertEquals('/**
+             * @var $a
+             */
+
+            setup:
+            $a = new PhpSpock();
+
+            then:
+            \'PhpSpock\' == get_class($a);', $result->getRawBody());
+
+        $blocks = $result->getRawBlocks();
+        $this->assertEquals(2, count($blocks));
+
+        $this->assertEquals('$a = new PhpSpock();', $blocks['setup']);
+    }
+
+    /**
+     * @test
+     */
     public function parseSpeckWitOneLineComments()
     {
         $spec = function() {

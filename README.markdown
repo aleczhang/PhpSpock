@@ -9,6 +9,13 @@ Useful links:
 * [Github page](https://github.com/ribozz/PhpSpock)
 * [Spock framework](http://code.google.com/p/spock/)
 
+## Plans
+
+Features to implement:
+
+* Several when->then block pairs
+* Define interactions in then block
+
 # Licence
 
 Full text of licenses are attached as COPYING and COPYING.LESSER files. 

@@ -1,3 +1,6 @@
 [submodule "lib/mockery"]
 	path = lib/mockery
 	url = git://github.com/padraic/mockery.git
+[submodule "lib/docrine-common"]
+	path = lib/docrine-common
+	url = http://github.com/doctrine/common.git

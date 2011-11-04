@@ -26,6 +26,8 @@
 
 namespace PhpSpock;
 
+use \PhpSpock\Specification\SimpleBlock;
+
 class PhpSpecTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -54,6 +56,29 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                 then:
                 $a == 2;
             });
+    }
+
+    /**
+     * @test
+     */
+    public function executeBlockWithPhpUseStatementUsed()
+    {
+        $phpSpock = new PhpSpock();
+        $phpSpock->run(array($this, 'mySpecUseAwareSpec'));
+    }
+
+
+    public function mySpecUseAwareSpec()
+    {
+        /**
+         * @var $a
+         */
+
+        setup:
+        $a = new SimpleBlock();
+
+        then:
+        'PhpSpock\Specification\SimpleBlock' == get_class($a);
     }
     
     /**

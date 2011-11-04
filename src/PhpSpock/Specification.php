@@ -37,6 +37,9 @@ class Specification {
     protected $startLine;
     protected $endLine;
 
+    protected $namespace;
+    protected $useStatements;
+
     /**
      * @var \PhpSpock\Specification\SimpleBlock
      */
@@ -144,12 +147,15 @@ class Specification {
     public function run()
     {
         $ret = null;
-        $code = '';
-
         $stepCounter = 1;
         $hasMoreVariants = true;
 
+        $__specification__assertCount = 0;
+
         while($hasMoreVariants) {
+
+            $code = '';
+
             if ($this->setupBlock) {
                 $code .= $this->setupBlock->compileCode();
             }
@@ -163,22 +169,40 @@ class Specification {
                 $code .= $this->thenBlock->compileCode();
             }
 
+            if (count($this->useStatements)) {
+                foreach($this->useStatements as $alias => $class) {
+                    $code = "use $class as $alias;\n" . $code;
+                }
+            }
+
+            if ($this->namespace != '') {
+                $code = 'namespace '. $this->getNamespace() . ' { ' . $code . "\n}";
+
+
+            }
+
+
+
             // eval will be executed in it's own scope
-            $func = function() use($code) {
+            $func = function() use($code, &$__specification__assertCount) {
 
                 $__parametrization__hasMoreVariants = false;
                 $__parametrization__lastVariants = null;
-                $__specification__assertCount = 0;
-
+                
                 $_ret = null; // for testing
+
+//                var_dump($code);
                 eval($code);
-                return array($__parametrization__hasMoreVariants, $__specification__assertCount);
+
+                return $__parametrization__hasMoreVariants;
             };
 
-            list($hasMoreVariants, $assertionCount) =  $func();
+            $hasMoreVariants =  $func();
             $stepCounter++;
         }
 
+        $assertionCount = $__specification__assertCount;
+        
         if (!is_numeric($assertionCount)) {
             throw new TestExecutionException('Assertion count variable is corrupted!');
         }
@@ -217,5 +241,25 @@ class Specification {
     public function getStartLine()
     {
         return $this->startLine;
+    }
+
+    public function setNamespace($namespace)
+    {
+        $this->namespace = $namespace;
+    }
+
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    public function setUseStatements($useStatements)
+    {
+        $this->useStatements = $useStatements;
+    }
+
+    public function getUseStatements()
+    {
+        return $this->useStatements;
     }
 }

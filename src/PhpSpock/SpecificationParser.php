@@ -96,7 +96,12 @@ class SpecificationParser extends AbstractParser {
             throw $newEx;
         }
 
+        $parser = new \PhpSpock\SpecificationParser\FileUseTokensParser();
+        list($namespace, $useStatements) = $parser->parseFile($fileName);
+
         $spec = new Specification();
+        $spec->setNamespace($namespace);
+        $spec->setUseStatements($useStatements);
         $spec->setFile($fileName);
         $spec->setStartLine($lineStart);
         $spec->setEndLine($lineEnd);
@@ -143,14 +148,16 @@ class SpecificationParser extends AbstractParser {
 
         $blockHeaderSequence = array(T_STRING, ':', T_WHITESPACE);
         $blockSequence = 0;
+        $blockSequenceData = array();
         $blockTokens = array();
         $currentBlockName = 'setup';
 
         $suggestedBlockName = '';
 
+
         foreach ($allTokens as $token) {
 
-            if ($token[0] == $blockHeaderSequence[$blockSequence]) {
+            if ($token[0] === $blockHeaderSequence[$blockSequence]) {
                 $blockSequence++;
                 if ($blockSequence == 1) {
                     $suggestedBlockName = $token[1];
@@ -167,8 +174,21 @@ class SpecificationParser extends AbstractParser {
                     }
 
                     $currentBlockName = $suggestedBlockName;
+
+                    $blockSequence = 0;
+                    $blockSequenceData = array();
                 }
+
+                $blockSequenceData[] = $token;
                 continue;
+            } else {
+                if (count($blockSequenceData)) {
+                    foreach($blockSequenceData as $seqToken) {
+                        $blockTokens[$currentBlockName][] = $seqToken;
+                    }
+                }
+                $blockSequence = 0;
+                $blockSequenceData = array();
             }
 
             if (!isset($blockTokens[$currentBlockName])) {

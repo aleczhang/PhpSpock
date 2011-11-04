@@ -19,32 +19,37 @@
  *
  **/
 /**
- * @author Alex Rudakov <alexandr.rudakov@modera.net>
+ * Date: 11/3/11
+ * Time: 1:39 PM
+ * @author Aleksandr Rudakov <ribozz@gmail.com>
  */
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../src/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
-    }
-});
+namespace PhpSpock\Specification;
+ 
+class SetupBlock {
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../lib/mockery/library/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
-    }
-});
+    private $expressions = array();
 
-spl_autoload_register(function($class)
-{
-    $file = __DIR__.'/../lib/docrine-common/lib/'.strtr($class, '\\', '/').'.php';
-    if (file_exists($file)) {
-        require $file;
-        return true;
+    public function setExpressions($expressions)
+    {
+        $this->expressions = $expressions;
     }
-});
+
+    public function getExpressions()
+    {
+        return $this->expressions;
+    }
+
+    public static function clazz() {
+        return get_called_class();
+    }
+
+    public function compileCode()
+    {
+        $code = '';
+        foreach($this->expressions as $expr) {
+            $code .= $expr . ';';
+        }
+        return $code;
+    }
+}
