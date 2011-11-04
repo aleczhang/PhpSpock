@@ -28,15 +28,15 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         $spec = new Specification();
         
         $setupBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
+                ->shouldReceive('compileCode')->once()
                 ->andReturn('$_ret = 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
+                ->shouldReceive('compileCode')->once()
                 ->andReturn('$_ret += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
+                ->shouldReceive('compileCode')->once()
                 ->andReturn('$_ret += 2;')->mock();
 
 
@@ -59,34 +59,41 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
-    public function executeSpecificationWith()
+    public function executeSpecificationWithParametrization()
     {
         $spec = new Specification();
 
         $setupBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
-                ->andReturn('$_ret = 1;')->mock();
-
-        $whenBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
+                ->shouldReceive('compileCode')->twice()
                 ->andReturn('$_ret += 1;')->mock();
 
-        $thenBlock = \Mockery::mock(ThenBlock::clazz())
-                ->shouldReceive('compileCode')->once()->with($spec)
+        $whenBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->twice()
                 ->andReturn('$_ret += 2;')->mock();
+
+        $thenBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->twice()
+                ->andReturn('$_ret += 3;')->mock();
+
+        $whereBlock = \Mockery::mock(WhereBlock::clazz())
+                ->shouldReceive('compileCode')->twice()
+                // should receive 1, 2 in sequence 
+                ->with(\Mockery::on(function($arg){
+                    static $counter = 0;
+                    $counter++;
+                    return $arg == $counter;
+                }))
+                ->andReturn('$__parametrization__hasMoreVariants = true;', '$__parametrization__hasMoreVariants = false;')->mock();
 
 
         $spec->setSetupBlock($setupBlock);
         $spec->setWhenBlock($whenBlock);
         $spec->setThenBlock($thenBlock);
-
-//        $spec->setWhereBlock($whereBlock);
-
-
+        $spec->setWhereBlock($whereBlock);
 
         $result = $spec->run();
 
-        $this->assertEquals(4, $result);
+        $this->assertEquals(12, $result);
 
     }
 }

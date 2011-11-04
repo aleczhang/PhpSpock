@@ -37,6 +37,70 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
             });
     }
 
+
+    /**
+     * @test
+     */
+    public function executeSpecificationWithParametrizationInTableStyle()
+    {
+        $phpSpock = new PhpSpock();
+
+        $phpSpock->run(function()
+            {
+                /**
+                 * @var $left
+                 * @var $right
+                 * @var $result
+                 * @var $expectedResult
+                 */
+
+                setup:
+                $a = 1;
+
+                when:
+                $a++;
+                $result = $right * $left;
+
+                then:
+                $a == 2;
+                $result == $expectedResult;
+
+                where:
+                $left | $right | $expectedResult;
+                2 | 3 | 6;
+                3 | 5 | 15;
+                7 | 8 | 56;
+            });
+    }
+
+    /**
+     * @test
+     */
+    public function executeSpecificationWithParametrizationInArrayStyle()
+    {
+        $phpSpock = new PhpSpock();
+
+        $phpSpock->run(function()
+            {
+                /**
+                 * @var $b
+                 * @var $result
+                 */
+
+                setup:
+                $a = 1;
+
+                when:
+                $result = 5 + $b -5;
+
+                then:
+                $result == $b;
+
+                where:
+                $b << array($a, 1, 2);
+            });
+    }
+
     /**
      * @test
      * @expectedException PhpSpock\Specification\AssertionException

@@ -118,25 +118,39 @@ class Specification {
 
     public function run()
     {
+        $ret = null;
         $code = '';
 
-        if ($this->setupBlock) {
-            $code .= $this->setupBlock->compileCode($this);
-        }
-        if ($this->whenBlock) {
-            $code .= $this->whenBlock->compileCode($this);
-        }
-        if ($this->thenBlock) {
-            $code .= $this->thenBlock->compileCode($this);
+        $stepCounter = 1;
+        $hasMoreVariants = true;
+
+        while($hasMoreVariants) {
+            if ($this->setupBlock) {
+                $code .= $this->setupBlock->compileCode();
+            }
+            if ($this->whereBlock) {
+                $code .= $this->whereBlock->compileCode($stepCounter);
+            }
+            if ($this->whenBlock) {
+                $code .= $this->whenBlock->compileCode();
+            }
+            if ($this->thenBlock) {
+                $code .= $this->thenBlock->compileCode();
+            }
+
+            // eval will be executed in it's own scope
+            $func = function() use($code) {
+                $__parametrization__hasMoreVariants = false;
+
+                $_ret = null; // for testing
+                eval($code);
+                return array($_ret, $__parametrization__hasMoreVariants);
+            };
+
+            list($ret, $hasMoreVariants) =  $func();
+            $stepCounter++;
         }
 
-        // eval will be executed in it's own scope
-        $func = function() use($code) {
-            $_ret = null; // for testing
-            eval($code);
-            return $_ret;
-        };
-
-        return $func();
+        return $ret;
     }
 }
