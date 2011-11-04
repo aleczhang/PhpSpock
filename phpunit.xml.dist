@@ -4,12 +4,14 @@
     <testsuites>
         <testsuite name="PhpSpock Test Suite">
             <directory>tests/PhpSpock/</directory>
+            <directory>examples/</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
             <directory suffix=".php">src/PhpSpock/</directory>
+            <directory suffix=".php">examples/</directory>
         </whitelist>
     </filter>
 </phpunit>

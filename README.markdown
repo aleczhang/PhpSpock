@@ -2,12 +2,36 @@
 # PhpSpock
 
 PhpSpock is a php implementation of Spock testing framework. Syntax of tests is replicated as much
-as php language syntax permits.
+as php language syntax permits. PhpSpock is standalone library, but is designed to be used in
+partnership with other testings framework like PhpUnit.
 
 Useful links:
 
 * [Github page](https://github.com/ribozz/PhpSpock)
 * [Spock framework](http://code.google.com/p/spock/)
+
+## Installation
+
+For now, only PhpUnit framework is supported
+
+Just override runTest method in your TestCase or right in test:
+
+    protected function runTest()
+    {
+        if (\PhpSpock\Adapter\PhpUnitAdapter::isSpecification($this)) {
+            return \PhpSpock\Adapter\PhpUnitAdapter::runTest($this);
+        } else {
+            return parent::runTest();
+        }
+    }
+
+## Examples
+
+One example is in folder "examples". Other examples will be later.
+And something you can see also from PhpSpock tests. Especially take a look at
+PhpSpockTest and SpecificationParserTest.
+
+To execute examples, just run "phpunit" command in PhpSpock folder.
 
 ## Plans
 
