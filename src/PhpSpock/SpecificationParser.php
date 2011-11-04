@@ -90,10 +90,16 @@ class SpecificationParser extends AbstractParser {
             $blocks = $this->splitOnBlocks($body);
 
         } catch(\Exception $e) {
-            throw new ParseException('Can not parse function defined in file ' . $fileName .' on line '. $lineStart, 0, $e);
+            $newEx = new ParseException('Can not parse function defined in file ' . $fileName .' on line '. $lineStart
+                . "\n". get_class($e) .': ' . $e->getMessage(), 0, $e);
+
+            throw $newEx;
         }
 
         $spec = new Specification();
+        $spec->setFile($fileName);
+        $spec->setStartLine($lineStart);
+        $spec->setEndLine($lineEnd);
         $spec->setRawBody($body);
         $spec->setRawBlocks($blocks);
         $this->parseBlocks($blocks, $spec);
@@ -192,6 +198,10 @@ class SpecificationParser extends AbstractParser {
             }
             $pos = array_search($blockName, $validOrder);
             $validOrder = array_slice($validOrder, $pos + 1);
+        }
+
+        if (!isset($blocks['then'])) {
+            throw new ParseException('Block "then:" is required.');
         }
 
         return $blocks;

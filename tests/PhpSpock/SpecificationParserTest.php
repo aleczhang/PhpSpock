@@ -126,6 +126,9 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
             when:
             $foo .= $sym;
+
+            then:
+            true;
          };
 
         $result = $this->parser->parse($spec);
@@ -140,10 +143,13 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             $foo = \'123\';
 
             when:
-            $foo .= $sym;', $result->getRawBody());
+            $foo .= $sym;
+
+            then:
+            true;', $result->getRawBody());
 
         $blocks = $result->getRawBlocks();
-        $this->assertEquals(2, count($blocks));
+        $this->assertEquals(3, count($blocks));
 
         $this->assertEquals('$foo = \'123\';', $blocks['setup']);
     }
@@ -207,6 +213,48 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
             when:
             $foo .= $sym;
+         };
+
+        $result = $this->parser->parse($spec);
+    }
+
+    /**
+     * @test
+     */
+    public function parseSpeckWitOneLineComments()
+    {
+        $spec = function() {
+            /**
+             * @var $sym
+             * @var $result
+             * @var $foo
+             */
+
+            // hofdasoihofsa
+            // fasdas
+
+            setup:
+            $a = 1;
+
+            when:
+            $foo .= $sym;
+
+            then:
+            $foo == $sym;
+
+         };
+
+        $result = $this->parser->parse($spec);
+    }
+
+    /**
+     * @test
+     * @expectedException PhpSpock\ParseException
+     */
+    public function parseEmptyTest()
+    {
+        $spec = function() {
+            
          };
 
         $result = $this->parser->parse($spec);

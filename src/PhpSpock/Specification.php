@@ -33,6 +33,10 @@ class Specification {
     protected $rawBody;
     protected $rawBlocks = array();
 
+    protected $file;
+    protected $startLine;
+    protected $endLine;
+
     /**
      * @var \PhpSpock\Specification\SimpleBlock
      */
@@ -164,16 +168,54 @@ class Specification {
 
                 $__parametrization__hasMoreVariants = false;
                 $__parametrization__lastVariants = null;
+                $__specification__assertCount = 0;
 
                 $_ret = null; // for testing
                 eval($code);
-                return array($_ret, $__parametrization__hasMoreVariants);
+                return array($__parametrization__hasMoreVariants, $__specification__assertCount);
             };
 
-            list($ret, $hasMoreVariants) =  $func();
+            list($hasMoreVariants, $assertionCount) =  $func();
             $stepCounter++;
         }
 
-        return $ret;
+        if (!is_numeric($assertionCount)) {
+            throw new TestExecutionException('Assertion count variable is corrupted!');
+        }
+        if ($assertionCount == 0) {
+            throw new \PhpSpock\Specification\AssertionException('Block "then:" does not contain any assertions.');
+        }
+
+        return $assertionCount;
+    }
+
+    public function setEndLine($endLine)
+    {
+        $this->endLine = $endLine;
+    }
+
+    public function getEndLine()
+    {
+        return $this->endLine;
+    }
+
+    public function setFile($file)
+    {
+        $this->file = $file;
+    }
+
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    public function setStartLine($startLine)
+    {
+        $this->startLine = $startLine;
+    }
+
+    public function getStartLine()
+    {
+        return $this->startLine;
     }
 }

@@ -55,6 +55,20 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                 $a == 2;
             });
     }
+    
+    /**
+     * @test
+     * @expectedException PhpSpock\Specification\AssertionException
+     */
+    public function blockThenShouldContainAtLeastOneAssertion()
+    {
+        $phpSpock = new PhpSpock();
+
+        $phpSpock->run(function() {
+            then:
+            $a = 1; // not assertion
+         });
+    }
 
 
 
@@ -107,7 +121,7 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                 $left | $right | $expectedResult;
                 2 | 3 | 6;
                 3 | 5 | 15;
-                7 | 8 | 55;
+                7 | 8 | 56;
             });
     }
 

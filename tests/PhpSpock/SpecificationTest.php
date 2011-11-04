@@ -48,15 +48,15 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         
         $setupBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('$_ret = 1;')->mock();
+                ->andReturn('$__specification__assertCount = 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('$_ret += 1;')->mock();
+                ->andReturn('$__specification__assertCount += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('$_ret += 2;')->mock();
+                ->andReturn('$__specification__assertCount += 2;')->mock();
 
 
         $spec->setSetupBlock($setupBlock);
@@ -84,15 +84,15 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $setupBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->twice()
-                ->andReturn('$_ret += 1;')->mock();
+                ->andReturn('$__specification__assertCount += 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->twice()
-                ->andReturn('$_ret += 2;')->mock();
+                ->andReturn('$__specification__assertCount += 2;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->twice()
-                ->andReturn('$_ret += 3;')->mock();
+                ->andReturn('$__specification__assertCount += 3;')->mock();
 
         $whereBlock = \Mockery::mock(WhereBlock::clazz())
                 ->shouldReceive('compileCode')->twice()

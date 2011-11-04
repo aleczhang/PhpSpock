@@ -33,7 +33,15 @@ class PhpSpock {
         $parser = new SpecificationParser();
 
         $testSpec = $parser->parse($test);
-        $testSpec->run();
+
+        try {
+            $testSpec->run();
+        } catch(TestExecutionException $e) {
+            $newEx = new TestExecutionException('Test failed: ' . $testSpec->getFile() .' on line '. $testSpec->getStartLine()
+                . "\n". get_class($e) .': ' . $e->getMessage(), 0, $e);
+
+            throw $newEx;
+        }
     }
 
     public function runWithAdapter(Adapter $adapter, $test)
