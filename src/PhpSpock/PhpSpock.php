@@ -35,7 +35,7 @@ class PhpSpock {
         $testSpec = $parser->parse($test);
 
         try {
-            $testSpec->run();
+            return $testSpec->run();
         } catch(TestExecutionException $e) {
             $newEx = new TestExecutionException('Test failed: ' . $testSpec->getFile() .' on line '. $testSpec->getStartLine()
                 . "\n". get_class($e) .': ' . $e->getMessage(), 0, $e);
@@ -46,7 +46,7 @@ class PhpSpock {
 
     public function runWithAdapter(Adapter $adapter, $test)
     {
-        $adapter->run($test, $this);
+        return $adapter->run($test, $this);
     }
 
     public function runWithPhpUnit($test)

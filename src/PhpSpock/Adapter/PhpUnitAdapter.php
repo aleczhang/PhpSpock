@@ -36,7 +36,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
     public function run($test, \PhpSpock\PhpSpock $phpSpock)
     {
         try {
-            $phpSpock->run($test);
+            return $phpSpock->run($test);
 
         } catch(AssertionException $e) {
             throw new \PHPUnit_Framework_ExpectationFailedException(
@@ -58,6 +58,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
             $class  = new \ReflectionClass($test);
             $method = $class->getMethod($test->getName(false));
             $methodName = $method->getName();
+
             return substr($methodName, -4) == 'Spec';
 
         } catch (\ReflectionException $e) {
@@ -77,7 +78,6 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
             $class  = new \ReflectionClass($test);
             $method = $class->getMethod($test->getName(false));
             $methodName = $method->getName();
-            return substr($methodName, -4) == 'Spec';
 
         } catch (\ReflectionException $e) {
             $test->fail($e->getMessage());
@@ -86,9 +86,11 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         try {
             $phpSpock = new \PhpSpock\PhpSpock();
 
-            $phpSpock->runWithAdapter(
+            $assertionCount = $phpSpock->runWithAdapter(
                 new static(),
                 array($test, $methodName));
+
+            $test->addToAssertionCount($assertionCount);
         }
         catch (\Exception $e) {
             $expectedExceptionClass = $test->getExpectedException();
