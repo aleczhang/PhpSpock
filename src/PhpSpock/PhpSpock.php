@@ -16,4 +16,14 @@ class PhpSpock {
         $testSpec = $parser->parse($test);
         $testSpec->run();
     }
+
+    public function runWithAdapter(Adapter $adapter, $test)
+    {
+        $adapter->run($test, $this);
+    }
+
+    public function runWithPhpUnit($test)
+    {
+        return $this->runWithAdapter( new \PhpSpock\Adapter\PhpUnitAdapter(), $test);
+    }
 }

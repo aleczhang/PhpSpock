@@ -6,6 +6,8 @@
  */
 
 namespace PhpSpock;
+
+use \PhpSpock\Specification\AssertionException;
  
 class Specification {
 
@@ -140,7 +142,9 @@ class Specification {
 
             // eval will be executed in it's own scope
             $func = function() use($code) {
+
                 $__parametrization__hasMoreVariants = false;
+                $__parametrization__lastVariants = null;
 
                 $_ret = null; // for testing
                 eval($code);

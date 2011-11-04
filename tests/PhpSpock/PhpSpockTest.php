@@ -38,6 +38,25 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
     }
 
 
+
+    /**
+     * @test
+     * @expectedException PHPUnit_Framework_ExpectationFailedException
+     */
+    public function executeSpecificationWithPhpUnitAdapter()
+    {
+        $phpSpock = new PhpSpock();
+
+        $phpSpock->runWithAdapter(
+            new \PhpSpock\Adapter\PhpUnitAdapter(),
+            function()
+            {
+                then:
+                2 + 2 == 5;
+            });
+    }
+
+
     /**
      * @test
      */
@@ -45,7 +64,7 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
     {
         $phpSpock = new PhpSpock();
 
-        $phpSpock->run(function()
+        $phpSpock->runWithPhpUnit(function()
             {
                 /**
                  * @var $left
@@ -69,7 +88,7 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                 $left | $right | $expectedResult;
                 2 | 3 | 6;
                 3 | 5 | 15;
-                7 | 8 | 56;
+                7 | 8 | 55;
             });
     }
 
