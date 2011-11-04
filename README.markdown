@@ -39,6 +39,7 @@ Features to implement:
 
 * Several when->then block pairs
 * Define interactions in then block
+* Make assertionFailure output more descriptive
 
 # Licence
 
