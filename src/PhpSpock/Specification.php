@@ -213,7 +213,9 @@ class Specification {
                         throw new AssertionException($msg);
                     }
 
-                    throw $e;
+                    if ($e instanceof \Exception) {
+                        throw $e;
+                    }
                 }
 
                 return $__parametrization__hasMoreVariants;

@@ -42,6 +42,124 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
+    public function eventBeforeGeneration()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_BEFORE_CODE_GENERATION) {
+                            $event->setAttribute('code', '$__specification__assertCount = 123;');
+                        }
+                    }
+                )->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $this->assertEquals(123, $spec->run());
+    }
+
+    /**
+     * @test
+     */
+    public function eventCollectVariables()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_COLLECT_EXTRA_VARIABLES) {
+                            $event->setAttribute('baz', function($arg){return $arg * 5;}); // injecting own closure
+                        }
+                    }
+                )->mock();
+
+        $setupBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('$__specification__assertCount = $baz(4);')->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $spec->setSetupBlock($setupBlock);
+
+        $this->assertEquals(20, $spec->run());
+    }
+
+
+
+    /**
+     * @test
+     */
+    public function eventConvertExceptions()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_TRANSFORM_TEST_EXCEPTION) {
+
+                            $e = $event->getAttribute('exception');
+                            $e = new \BadMethodCallException($e->getMessage() . 'barbaz');
+
+                            $event->setAttribute('exception', $e);
+                        }
+                    }
+                )->mock();
+
+        $setupBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('throw new \Exception("foo");')->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $spec->setSetupBlock($setupBlock);
+
+        try {
+            $spec->run();
+            $this->fail('Exception expected!');
+            
+        } catch(\BadMethodCallException $exc) {
+            $this->assertEquals('foobarbaz', $exc->getMessage());
+        }
+
+    }
+
+    /**
+     * @test
+     */
+    public function eventConvertExceptionsWithExceptionRemoved()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_TRANSFORM_TEST_EXCEPTION) {
+                            $event->setAttribute('exception', null);
+                        }
+                    }
+                )->mock();
+
+        $setupBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('$__specification__assertCount = 1; throw new \Exception("foo");')->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $spec->setSetupBlock($setupBlock);
+
+        $spec->run();
+        // no exception should be here
+    }
+
+
+
+    /**
+     * @test
+     */
     public function executeSpecification()
     {
         $spec = new Specification();
