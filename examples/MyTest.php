@@ -19,7 +19,11 @@ class EntityTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testIndexSpec()
+    /**
+     * @return void
+     * @spec
+     */
+    public function testIndex()
     {
         /**
          * @var $b

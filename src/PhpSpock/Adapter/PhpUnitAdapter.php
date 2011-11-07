@@ -60,7 +60,9 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
             $method = $class->getMethod($test->getName(false));
             $methodName = $method->getName();
 
-            return substr($methodName, -4) == 'Spec';
+
+
+            return substr($methodName, -4) == 'Spec' || preg_match('/\s+@spec\s+/', $method->getDocComment());
 
         } catch (\ReflectionException $e) {
             $test->fail($e->getMessage());
