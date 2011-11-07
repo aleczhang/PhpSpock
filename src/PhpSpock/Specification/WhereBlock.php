@@ -55,7 +55,9 @@ class WhereBlock {
     public function compileCode($step)
     {
         $code = '$__parametrization__step = '.$step.'; $__parametrization__counts = array();
-         $__parametrization__lastVariants = array();';
+         $__parametrization__lastVariants = array();
+         $__parametrization__lastValues = array();';
+
         foreach($this->parametrizations as $p) {
 
             $code .= '$__parametrization__variants = ' . $p->getRightExpression() . ';
@@ -64,8 +66,10 @@ class WhereBlock {
 
             '.$p->getLeftExpression().' = $__parametrization__variants[$__parametrization__elId];
             $__parametrization__lastVariants[\''.addslashes($p->getLeftExpression()).'\'] =
-                \'element[\' . $__parametrization__elId .\'] of array: '.addslashes($p->getRightExpression()).' evaluated to {\'.var_export('.$p->getLeftExpression().', 1).\'}\';
-            ';
+                \'element[\' . $__parametrization__elId .\'] of array: '.addslashes($p->getRightExpression()).'\';
+            $__parametrization__lastValues[\''.addslashes($p->getLeftExpression()).'\'] =
+                var_export('.$p->getLeftExpression().', 1);
+                        ';
         }
         $code .= '$__parametrization__hasMoreVariants = (($__parametrization__step + 1) < max($__parametrization__counts));';
 

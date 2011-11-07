@@ -21,11 +21,18 @@ class EntityTest extends \PHPUnit_Framework_TestCase
 
     public function testIndexSpec()
     {
+        /**
+         * @var $b
+         */
+        
         setup:
         $a = new PhpSpock();
 
         then:
+        $this->assertType('PhpSpock\Adapter\PhpUnitAdapter', $a);
         'PhpSpock\Adapter\PhpUnitAdapter' == get_class($a);
 
+        where:
+        $b << array(1, 2, 3);
     }
 }

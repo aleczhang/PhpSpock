@@ -27,7 +27,7 @@
 namespace PhpSpock;
 
 use \PhpSpock\Specification\AssertionException;
- 
+
 class Specification {
 
     protected $rawBody;
@@ -39,6 +39,11 @@ class Specification {
 
     protected $namespace;
     protected $useStatements;
+
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
+    protected $eventDispatcher;
 
     /**
      * @var Specification\WhenThenPair[]
@@ -147,18 +152,69 @@ class Specification {
 
             }
 
+            $code = $this->preprocessCode($code);
 
+            $extraVars = $this->getExtraVars();
+
+            $__eventDispatcher = $this->getEventDispatcher();
 
             // eval will be executed in it's own scope
-            $func = function() use($code, &$__specification__assertCount) {
+            $func = function() use($code, &$__specification__assertCount, $extraVars, $__eventDispatcher) {
+                
+                extract($extraVars);
 
                 $__parametrization__hasMoreVariants = false;
                 $__parametrization__lastVariants = null;
-                
+                $__parametrization__lastValues = null;
+
                 $_ret = null; // for testing
 
-//                var_dump($code);
-                eval($code);
+//                  var_dump($code);
+
+                try {
+
+                    eval($code);
+
+                } catch(\Exception $e) {
+
+                    $event = new Event();
+                    $event->setAttribute('exception', $e);
+                    
+                    $__eventDispatcher->dispatch(Event::EVENT_TRANSFORM_TEST_EXCEPTION, $event);
+
+                    $e = $event->getAttribute('exception');
+
+                    if ($e instanceof AssertionException) {
+                        
+                        $msg = $e->getMessage();
+
+                        if (isset($__parametrization__lastVariants)) {
+
+                            $_tbpm_longestLeft = 0;
+                            foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
+                                if (strlen($_tbpm_key) > $_tbpm_longestLeft) {
+                                    $_tbpm_longestLeft = strlen($_tbpm_key);
+                                }
+                            }
+
+                            $msg .= "\n\n Where: \n---------------------------------------------------\n";
+
+                            foreach($__parametrization__lastValues as $_tbpm_key => $_tbpm_value) {
+                                $msg .= "  $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
+                            }
+
+                            $msg .= "\n\n Parametriazation values [step $__parametrization__step]:  \n---------------------------------------------------\n";
+
+                            foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
+                                $msg .= " $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
+                            }
+                        }
+
+                        throw new AssertionException($msg);
+                    }
+
+                    throw $e;
+                }
 
                 return $__parametrization__hasMoreVariants;
             };
@@ -177,6 +233,25 @@ class Specification {
         }
 
         return $assertionCount;
+    }
+
+    public function getExtraVars()
+    {
+        $event = new Event();
+        $this->getEventDispatcher()->dispatch(Event::EVENT_COLLECT_EXTRA_VARIABLES, $event);
+        $extraVars = $event->getAllAttributes();
+        return $extraVars;
+    }
+
+    public function preprocessCode($code)
+    {
+        $event = new Event();
+        $event->setAttribute('code', $code);
+
+        $this->getEventDispatcher()->dispatch(Event::EVENT_BEFORE_CODE_GENERATION, $event);
+
+        $code = $event->getAttribute('code');
+        return $code;
     }
 
     public function setEndLine($endLine)
@@ -237,5 +312,24 @@ class Specification {
     public function getWhenThenPairs()
     {
         return $this->whenThenPairs;
+    }
+
+    /**
+     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
+    public function getEventDispatcher()
+    {
+        if (!$this->eventDispatcher) {
+            $this->eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+        }
+        return $this->eventDispatcher;
     }
 }

@@ -63,20 +63,7 @@ class ThenBlock {
                 if(!$op) {
                     $msg = "Expression '.str_replace('$', '\$', $expr).' is evaluated to false.";
                     '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
-                    if (isset($__parametrization__lastVariants)) {
-                        $msg .= "\n\nParametriazation values [step $__parametrization__step]: \n";
-
-                        $_tbpm_longestLeft = 0;
-                        foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
-                            if (strlen($_tbpm_key) > $_tbpm_longestLeft) {
-                                $_tbpm_longestLeft = strlen($_tbpm_key);
-                            }
-                        }
-
-                        foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
-                            $msg .= "  $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
-                        }
-                    }
+                    
                     throw new \PhpSpock\Specification\AssertionException($msg);
                 }
             }';

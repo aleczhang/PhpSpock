@@ -4,3 +4,12 @@
 [submodule "lib/docrine-common"]
 	path = lib/docrine-common
 	url = http://github.com/doctrine/common.git
+[submodule "lib/symfony-events"]
+	path = lib/symfony-events
+	url = git://github.com/symfony/EventDispatcher.git
+[submodule "lib/symfony-events/Symfony/Components/EventsDispatcher"]
+	path = lib/symfony-events/Symfony/Components/EventsDispatcher
+	url = git://github.com/symfony/EventDispatcher.git
+[submodule "lib/symfony-events/Symfony/Component/EventDispatcher"]
+	path = lib/symfony-events/Symfony/Component/EventDispatcher
+	url = git://github.com/symfony/EventDispatcher.git

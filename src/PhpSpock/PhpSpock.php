@@ -29,10 +29,18 @@ namespace PhpSpock;
  
 class PhpSpock {
 
+    /**
+     * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
+    protected $eventDispatcher;
+    
+
     public function run($test) {
         $parser = new SpecificationParser();
 
         $testSpec = $parser->parse($test);
+
+        $testSpec->setEventDispatcher($this->getEventDispatcher());
 
         try {
             return $testSpec->run();
@@ -52,5 +60,24 @@ class PhpSpock {
     public function runWithPhpUnit($test)
     {
         return $this->runWithAdapter( new \PhpSpock\Adapter\PhpUnitAdapter(), $test);
+    }
+
+    /**
+     * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
+     */
+    public function setEventDispatcher($eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+     */
+    public function getEventDispatcher()
+    {
+        if (!$this->eventDispatcher) {
+            $this->eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+        }
+        return $this->eventDispatcher;
     }
 }

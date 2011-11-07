@@ -36,6 +36,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
     public function run($test, \PhpSpock\PhpSpock $phpSpock)
     {
         try {
+
             return $phpSpock->run($test);
 
         } catch(AssertionException $e) {
@@ -84,7 +85,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         }
 
         try {
-            $phpSpock = new \PhpSpock\PhpSpock();
+            $phpSpock = self::createPhpSpockInstance($test);
 
             $assertionCount = $phpSpock->runWithAdapter(
                 new static(),
@@ -122,6 +123,43 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
                 throw $e;
             }
         }
+    }
+
+    public static function createPhpSpockInstance($test)
+    {
+        $phpSpock = new \PhpSpock\PhpSpock();
+
+        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_BEFORE_CODE_GENERATION,
+            function(\PhpSpock\Event $event)
+            {
+
+                $code = $event->getAttribute('code');
+
+                $code = str_replace('$this->', '$phpunit->', $code);
+
+                $event->setAttribute('code', $code);
+            });
+
+        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_TRANSFORM_TEST_EXCEPTION,
+            function(\PhpSpock\Event $event)
+            {
+
+                $exception = $event->getAttribute('exception');
+
+                if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
+                    $exception = new AssertionException($exception->getMessage());
+                }
+
+                $event->setAttribute('exception', $exception);
+            });
+
+        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_COLLECT_EXTRA_VARIABLES,
+            function(\PhpSpock\Event $event) use($test)
+            {
+
+                $event->setAttribute('phpunit', $test);
+            });
+        return $phpSpock;
     }
 
     /**
