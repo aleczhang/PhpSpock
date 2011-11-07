@@ -51,7 +51,7 @@ class ThenBlockParserTest extends \PHPUnit_Framework_TestCase {
     public function parseSeveralLines()
     {
         $code = '1 * $service->call();
-                $test == 123;';
+                $test == 123; // hoho';
 
         $result = $this->parser->parse($code);
 
@@ -61,7 +61,11 @@ class ThenBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(2, count($expressions));
 
-        $this->assertEquals('1 * $service->call()', $expressions[0]);
-        $this->assertEquals('$test == 123', $expressions[1]);
+        $this->assertType('PhpSpock\Specification\ThenBlock\Expression', $expressions[0]);
+        $this->assertEquals('1 * $service->call()', $expressions[0]->getCode());
+
+        $this->assertType('PhpSpock\Specification\ThenBlock\Expression', $expressions[1]);
+        $this->assertEquals('$test == 123', $expressions[1]->getCode());
+        $this->assertEquals('hoho', $expressions[1]->getComment());
     }
 }

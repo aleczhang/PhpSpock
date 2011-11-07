@@ -33,11 +33,19 @@ PhpSpockTest and SpecificationParserTest.
 
 To execute examples, just run "phpunit" command in PhpSpock folder.
 
+## Implemented features
+
+* Spock syntax
+* Support for "use" class import in tests
+* PhpUnit framework adapter
+* Parametrization
+* Several when->then block pairs
+* Custom error message in assertion
+
 ## Plans
 
 Features to implement:
 
-* Several when->then block pairs
 * Define interactions in then block
 * Make assertionFailure output more descriptive
 

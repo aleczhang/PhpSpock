@@ -50,6 +50,9 @@ class ThenBlock {
 
         foreach($this->expressions as $expr) {
 
+            $comment = $expr->getComment();
+            $expr = $expr->getCode();
+
             $code .= '$op = (' . $expr . ');
             if (is_bool($op)) {
                 if (!isset($__specification__assertCount)) {
@@ -59,6 +62,7 @@ class ThenBlock {
 
                 if(!$op) {
                     $msg = "Expression '.str_replace('$', '\$', $expr).' is evaluated to false.";
+                    '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
                     if (isset($__parametrization__lastVariants)) {
                         $msg .= "\n\nParametriazation values [step $__parametrization__step]: \n";
 

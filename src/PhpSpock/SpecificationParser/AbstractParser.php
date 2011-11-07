@@ -48,8 +48,8 @@ abstract class AbstractParser {
         foreach ($tokens as $token) {
             switch ($token[0]) {
                 case T_OPEN_TAG:
-                case T_DOC_COMMENT:
-                case T_COMMENT:
+//                case T_DOC_COMMENT:
+//                case T_COMMENT:
                     continue(2);
 
                 case T_WHITESPACE:

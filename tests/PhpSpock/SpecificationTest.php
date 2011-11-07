@@ -51,25 +51,30 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
                 ->andReturn('$__specification__assertCount = 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->once()
+                ->shouldReceive('compileCode')->twice()
                 ->andReturn('$__specification__assertCount += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
-                ->shouldReceive('compileCode')->once()
+                ->shouldReceive('compileCode')->twice()
                 ->andReturn('$__specification__assertCount += 2;')->mock();
 
 
         $spec->setSetupBlock($setupBlock);
-        $spec->setWhenBlock($whenBlock);
-        $spec->setThenBlock($thenBlock);
 
-//        $spec->setWhereBlock($whereBlock);
+        $pair1 = new \PhpSpock\Specification\WhenThenPair();
+        $pair1->setWhenBlock($whenBlock);
+        $pair1->setThenBlock($thenBlock);
 
+        $pair2 = new \PhpSpock\Specification\WhenThenPair();
+        $pair2->setWhenBlock($whenBlock);
+        $pair2->setThenBlock($thenBlock);
+
+        $spec->setWhenThenPairs(array($pair1, $pair2));
 
         
         $result = $spec->run();
 
-        $this->assertEquals(4, $result);
+        $this->assertEquals(7, $result);
 
     }
 
@@ -87,13 +92,27 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
                 ->andReturn('$__specification__assertCount += 1;')->mock();
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
-                ->shouldReceive('compileCode')->twice()
-                ->andReturn('$__specification__assertCount += 2;')->mock();
+                ->shouldReceive('compileCode')->times(4)
+                ->andReturn('$__specification__assertCount += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
-                ->shouldReceive('compileCode')->twice()
-                ->andReturn('$__specification__assertCount += 3;')->mock();
+                ->shouldReceive('compileCode')->times(4)
+                ->andReturn('$__specification__assertCount += 2;')->mock();
 
+
+        $spec->setSetupBlock($setupBlock);
+
+        $pair1 = new \PhpSpock\Specification\WhenThenPair();
+        $pair1->setWhenBlock($whenBlock);
+        $pair1->setThenBlock($thenBlock);
+
+        $pair2 = new \PhpSpock\Specification\WhenThenPair();
+        $pair2->setWhenBlock($whenBlock);
+        $pair2->setThenBlock($thenBlock);
+
+        $spec->setWhenThenPairs(array($pair1, $pair2));
+
+        
         $whereBlock = \Mockery::mock(WhereBlock::clazz())
                 ->shouldReceive('compileCode')->twice()
                 // should receive 1, 2 in sequence 
@@ -106,13 +125,11 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
 
         $spec->setSetupBlock($setupBlock);
-        $spec->setWhenBlock($whenBlock);
-        $spec->setThenBlock($thenBlock);
         $spec->setWhereBlock($whereBlock);
 
         $result = $spec->run();
 
-        $this->assertEquals(12, $result);
+        $this->assertEquals(14, $result);
 
     }
 }

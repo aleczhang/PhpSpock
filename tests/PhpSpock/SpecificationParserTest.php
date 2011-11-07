@@ -25,7 +25,10 @@
  */
 
 namespace PhpSpock;
- 
+
+/**
+ * @group several-when
+ */
 class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
     /**
@@ -66,6 +69,12 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             then:
             $foo == $result;
 
+            _when:
+            $foo .= $sym;
+
+            _then:
+            $foo == $result;
+
             where:
             $sym | $result;
             '!' | '123!';
@@ -90,6 +99,12 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             then:
             $foo == $result;
 
+            _when:
+            $foo .= $sym;
+
+            _then:
+            $foo == $result;
+
             where:
             $sym | $result;
             \'!\' | \'123!\';
@@ -97,17 +112,41 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $blocks = $result->getRawBlocks();
 
-        $this->assertEquals(4, count($blocks));
-        $this->assertEquals('$foo = \'123\';', $blocks['setup']);
-        $this->assertEquals('$foo .= $sym;', $blocks['when']);
-        $this->assertEquals('$foo == $result;', $blocks['then']);
+        $this->assertEquals(6, count($blocks));
+
+        $this->assertEquals('setup', $blocks[0]['name']);
+        $this->assertEquals('$foo = \'123\';', $blocks[0]['code']);
+
+        $this->assertEquals('when', $blocks[1]['name']);
+        $this->assertEquals('$foo .= $sym;', $blocks[1]['code']);
+
+        $this->assertEquals('then', $blocks[2]['name']);
+        $this->assertEquals('$foo == $result;', $blocks[2]['code']);
+
+        $this->assertEquals('when', $blocks[3]['name']);
+        $this->assertEquals('$foo .= $sym;', $blocks[3]['code']);
+
+        $this->assertEquals('then', $blocks[4]['name']);
+        $this->assertEquals('$foo == $result;', $blocks[4]['code']);
+
+        $this->assertEquals('where', $blocks[5]['name']);
         $this->assertEquals('$sym | $result;
             \'!\' | \'123!\';
-            \'4\' | \'1234\';', $blocks['where']);
+            \'4\' | \'1234\';', $blocks[5]['code']);
+        
 
         $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getSetupBlock());
-        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getWhenBlock());
-        $this->assertType('PhpSpock\Specification\ThenBlock', $result->getThenBlock());
+
+        $whenThenPairs = $result->getWhenThenPairs();
+        $this->assertTrue(is_array($whenThenPairs));
+        $this->assertEquals(2, count($whenThenPairs));
+
+        $this->assertType('PhpSpock\Specification\SimpleBlock', $whenThenPairs[0]->getWhenBlock());
+        $this->assertType('PhpSpock\Specification\ThenBlock', $whenThenPairs[0]->getThenBlock());
+
+        $this->assertType('PhpSpock\Specification\SimpleBlock', $whenThenPairs[1]->getWhenBlock());
+        $this->assertType('PhpSpock\Specification\ThenBlock', $whenThenPairs[1]->getThenBlock());
+
         $this->assertType('PhpSpock\Specification\WhereBlock', $result->getWhereBlock());
     }
 
@@ -151,7 +190,8 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         $blocks = $result->getRawBlocks();
         $this->assertEquals(3, count($blocks));
 
-        $this->assertEquals('$foo = \'123\';', $blocks['setup']);
+        $this->assertEquals('setup', $blocks[0]['name']);
+        $this->assertEquals('$foo = \'123\';', $blocks[0]['code']);
     }
 
     /**
@@ -208,11 +248,11 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
              * @var $foo
              */
 
+            where:
+            $foo .= $sym;
+
             then:
             $foo == $sym;
-
-            when:
-            $foo .= $sym;
          };
 
         $result = $this->parser->parse($spec);
@@ -251,7 +291,8 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         $blocks = $result->getRawBlocks();
         $this->assertEquals(2, count($blocks));
 
-        $this->assertEquals('$a = new PhpSpock();', $blocks['setup']);
+        $this->assertEquals('setup', $blocks[0]['name']);
+        $this->assertEquals('$a = new PhpSpock();', $blocks[0]['code']);
     }
 
     /**

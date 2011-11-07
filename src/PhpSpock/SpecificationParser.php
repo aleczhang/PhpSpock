@@ -111,32 +111,58 @@ class SpecificationParser extends AbstractParser {
         return $spec;
     }
 
-    public function parseBlocks($blocks, $spec)
+    public function parseBlocks($blocks, Specification $spec)
     {
-        foreach ($blocks as $blockName => $blockCode) {
+        $pairs = array();
+        $currentPair = null;
 
-            switch ($blockName) {
+        for ($i = 0; $i < count($blocks); $i++) {
 
-                case 'setup':
+            $block = $blocks[$i];
+            $blockName = $block['name'];
+            $blockCode = $block['code'];
+
+            if (in_array($blockName, array('when', 'then'))) {
+
+                if (!$currentPair) {
+                    $currentPair = new \PhpSpock\Specification\WhenThenPair();
+                }
+
+                if ($blockName == 'when') {
                     $parser = new SimpleBlockParser();
-                    $spec->setSetupBlock($parser->parse($blockCode));
-                    break;
+                    $currentPair->setWhenBlock($parser->parse($blockCode));
+                }
+                if ($blockName == 'then') {
 
-                case 'when':
-                    $parser = new SimpleBlockParser();
-                    $spec->setWhenBlock($parser->parse($blockCode));
-                    break;
-
-                case 'then':
                     $parser = new ThenBlockParser();
-                    $spec->setThenBlock($parser->parse($blockCode));
-                    break;
+                    $currentPair->setThenBlock($parser->parse($blockCode));
 
-                case 'where':
-                    $parser = new WhereBlockParser();
-                    $spec->setWhereBlock($parser->parse($blockCode));
-                    break;
+                    $pairs[] = $currentPair;
+                    $currentPair = null;
+                }
+
+
+            } else {
+
+                switch ($blockName) {
+
+                    case 'setup':
+                        $parser = new SimpleBlockParser();
+                        $spec->setSetupBlock($parser->parse($blockCode));
+                        break;
+
+                    case 'when':
+
+                    case 'where':
+                        $parser = new WhereBlockParser();
+                        $spec->setWhereBlock($parser->parse($blockCode));
+                        break;
+                }
             }
+        }
+
+        if (count($pairs)) {
+            $spec->setWhenThenPairs($pairs);
         }
     }
 
@@ -154,20 +180,25 @@ class SpecificationParser extends AbstractParser {
 
         $suggestedBlockName = '';
 
-
+        $blockId = 0;
         foreach ($allTokens as $token) {
+
+            // if setup block is not started yet
+            if ($blockSequence == 0 && $currentBlockName == 'setup' && count($blockTokens) == 0
+                    && in_array($token[0], array(T_COMMENT, T_DOC_COMMENT, T_WHITESPACE))) {
+                continue;
+            }
 
             if ($token[0] === $blockHeaderSequence[$blockSequence]) {
                 $blockSequence++;
                 if ($blockSequence == 1) {
-                    $suggestedBlockName = $token[1];
+                    $suggestedBlockName = preg_replace('/^_+/','', $token[1]);
                 }
                 if ($blockSequence >= count($blockHeaderSequence)) {
-                    $blockSequence = 0;
-
-                    if(isset($blockTokens[$suggestedBlockName])) {
-                        throw new ParseException('Block ' . $suggestedBlockName . ' is already defined!');
-                    }
+                    
+//                    if(isset($blockTokens[$suggestedBlockName])) {
+//                        throw new ParseException('Block ' . $suggestedBlockName . ' is already defined!');
+//                    }
 
                     if(!in_array($suggestedBlockName, $this->allowedBlocks)) {
                         throw new ParseException('Unknown block found: ' . $suggestedBlockName . '');
@@ -177,54 +208,98 @@ class SpecificationParser extends AbstractParser {
 
                     $blockSequence = 0;
                     $blockSequenceData = array();
+                    if (count($blockTokens) != 0) {
+                        $blockId++;
+                    }
                 }
 
                 $blockSequenceData[] = $token;
                 continue;
             } else {
                 if (count($blockSequenceData)) {
+
+                    if (!isset($blockTokens[$blockId])) {
+                        $blockTokens[$blockId] = array('name' => $currentBlockName, 'tokens' => array());
+                    }
+
                     foreach($blockSequenceData as $seqToken) {
-                        $blockTokens[$currentBlockName][] = $seqToken;
+                        $blockTokens[$blockId]['tokens'][] = $seqToken;
+
                     }
                 }
                 $blockSequence = 0;
                 $blockSequenceData = array();
             }
 
-            if (!isset($blockTokens[$currentBlockName])) {
-                $blockTokens[$currentBlockName] = array();
+            if (!isset($blockTokens[$blockId])) {
+                $blockTokens[$blockId] = array('name' => $currentBlockName, 'tokens' => array());
             }
-            $blockTokens[$currentBlockName][] = $token;
+
+            $blockTokens[$blockId]['tokens'][] = $token;
         }
 
+        $this->validateBlocksOrder($blockTokens);
+
+        $blocks = $this->collectBlocksCode($blockTokens);
+
+
+        return $blocks;
+    }
+
+    private function collectBlocksCode($blockTokens)
+    {
         $blocks = array();
-        foreach($blockTokens as $blockName => $tokens) {
+        foreach ($blockTokens as $block) {
 
             $code = '';
-
-            foreach($tokens as $token) {
+            foreach ($block['tokens'] as $token) {
                 $code .= $token[1];
             }
 
-            $blocks[$blockName] = trim($code);
+            $block['code'] = trim($code);
+            $blocks[] = $block;
         }
+        return $blocks;
+    }
 
-        $validOrder = $this->allowedBlocks;
+    private function validateBlocksOrder($blocks)
+    {
+        $validOrder = array(
+            '' => array('setup', 'when', 'then'),
+            'setup' => array('when', 'then'),
+            'when' => array('then'),
+            'then' => array('when', 'where'),
+        );
 
+        $thenCount = 0;
+        $whenCount = 0;
+        $lastBlock = '';
         // check block order
-        foreach(array_keys($blocks) as $blockName) {
-            if (!in_array($blockName, $validOrder)) {
-                throw new ParseException($blockName . ' is in wrong position');
+        foreach ($blocks as $block) {
+
+            $blockName = $block['name'];
+
+            if ('then' == $blockName) {
+                $thenCount++;
             }
-            $pos = array_search($blockName, $validOrder);
-            $validOrder = array_slice($validOrder, $pos + 1);
+            if ('when' == $blockName) {
+                $whenCount++;
+            }
+
+            $validBlocks = $validOrder[$lastBlock];
+            if (!in_array($blockName, $validBlocks)) {
+                throw new ParseException('Unexpected ' . $blockName . ' Expecting one of: ' . implode(',', $validOrder[$lastBlock]));
+            }
+
+            $lastBlock = $blockName;
         }
 
-        if (!isset($blocks['then'])) {
+        if ($thenCount == 0) {
             throw new ParseException('Block "then:" is required.');
         }
-
-        return $blocks;
+        if ($thenCount < $whenCount) {
+            throw new ParseException('Each when block should have it\'s own then block');
+        }
     }
 
     public function setAllowedBlocks($allowedBlocks)

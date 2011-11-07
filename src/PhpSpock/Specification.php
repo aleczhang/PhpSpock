@@ -41,19 +41,14 @@ class Specification {
     protected $useStatements;
 
     /**
+     * @var Specification\WhenThenPair[]
+     */
+    protected $whenThenPairs = array();
+    
+    /**
      * @var \PhpSpock\Specification\SimpleBlock
      */
     protected $setupBlock;
-
-    /**
-     * @var \PhpSpock\Specification\SimpleBlock
-     */
-    protected $whenBlock;
-
-    /**
-     * @var \PhpSpock\Specification\ThenBlock
-     */
-    protected $thenBlock;
 
     /**
      * @var \PhpSpock\Specification\WhereBlock
@@ -97,38 +92,6 @@ class Specification {
     }
 
     /**
-     * @param \PhpSpock\Specification\ThenBlock $thenBlock
-     */
-    public function setThenBlock($thenBlock)
-    {
-        $this->thenBlock = $thenBlock;
-    }
-
-    /**
-     * @return \PhpSpock\Specification\ThenBlock
-     */
-    public function getThenBlock()
-    {
-        return $this->thenBlock;
-    }
-
-    /**
-     * @param \PhpSpock\Specification\SimpleBlock $whenBlock
-     */
-    public function setWhenBlock($whenBlock)
-    {
-        $this->whenBlock = $whenBlock;
-    }
-
-    /**
-     * @return \PhpSpock\Specification\SimpleBlock
-     */
-    public function getWhenBlock()
-    {
-        return $this->whenBlock;
-    }
-
-    /**
      * @param \PhpSpock\Specification\WhereBlock $whereBlock
      */
     public function setWhereBlock($whereBlock)
@@ -162,11 +125,14 @@ class Specification {
             if ($this->whereBlock) {
                 $code .= $this->whereBlock->compileCode($stepCounter);
             }
-            if ($this->whenBlock) {
-                $code .= $this->whenBlock->compileCode();
-            }
-            if ($this->thenBlock) {
-                $code .= $this->thenBlock->compileCode();
+
+            foreach($this->whenThenPairs as $pair) {
+                if ($pair->getWhenBlock()) {
+                    $code .= $pair->getWhenBlock()->compileCode();
+                }
+                if ($pair->getThenBlock()) {
+                    $code .= $pair->getThenBlock()->compileCode();
+                }
             }
 
             if (count($this->useStatements)) {
@@ -261,5 +227,15 @@ class Specification {
     public function getUseStatements()
     {
         return $this->useStatements;
+    }
+
+    public function setWhenThenPairs($whenThenPairs)
+    {
+        $this->whenThenPairs = $whenThenPairs;
+    }
+
+    public function getWhenThenPairs()
+    {
+        return $this->whenThenPairs;
     }
 }

@@ -43,11 +43,11 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
         $foo = 0;
         
         $block = new ThenBlock();
-        $block->setExpressions(
-            array(
-                '$foo = 1'
-            )
-        );
+
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('$foo = 1');
+
+        $block->setExpressions(array($expr1));
 
         $code = $block->compileCode();
 
@@ -64,11 +64,17 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
     {
         $foo = 0;
 
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('$foo = 1');
+
+        $expr2 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr2->setCode('$foo == 1');
+
         $block = new ThenBlock();
         $block->setExpressions(
             array(
-                '$foo = 1',
-                '$foo == 1'
+               $expr1,
+               $expr2
             )
         );
 
@@ -82,17 +88,24 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @test
-     * @expectedException PhpSpock\Specification\AssertionException
      */
     public function testCodeWithBooleanExpressionThatIsFalse()
     {
         $foo = 0;
 
+
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('$foo = 1');
+
+        $expr2 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr2->setCode('$foo == 2');
+        $expr2->setComment('booo!');
+
         $block = new ThenBlock();
         $block->setExpressions(
             array(
-                '$foo = 1',
-                '$foo == 2'
+                $expr1,
+                $expr2
             )
         );
 
@@ -100,6 +113,12 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertNotNull($code);
 
-        eval($code);
+        try {
+            eval($code);
+            $this->fail("Assert exception expected");
+        } catch(\PhpSpock\Specification\AssertionException $e) {
+
+            $this->assertContains('booo!', $e->getMessage());
+        }
     }
 }

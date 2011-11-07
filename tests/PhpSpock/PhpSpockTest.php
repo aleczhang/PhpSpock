@@ -28,7 +28,7 @@ namespace PhpSpock;
 
 use \PhpSpock\Specification\SimpleBlock;
 
-class PhpSpecTest extends \PHPUnit_Framework_TestCase
+class PhpSpockTest extends \PHPUnit_Framework_TestCase
 {
 
     protected function tearDown()
@@ -54,7 +54,13 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                 $a++;
 
                 then:
-                $a == 2;
+                $a == 2; // lala
+
+                _when:
+                $a += 2;
+
+                _then:
+                $a == 4; // foooo!!!!
             });
     }
 
@@ -129,10 +135,13 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
                  * @var $right
                  * @var $result
                  * @var $expectedResult
+                 * @var $foo
+                 * @var $boo
                  */
 
                 setup:
                 $a = 1;
+
 
                 when:
                 $a++;
@@ -140,7 +149,7 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
 
                 then:
                 $a == 2;
-                $result == $expectedResult;
+                $result == $expectedResult; // The result should be equal to expected result.
 
                 where:
                 $left | $right | $expectedResult;
@@ -180,23 +189,28 @@ class PhpSpecTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
-     * @expectedException PhpSpock\Specification\AssertionException
      */
     public function executeSpecificationWithBrokenTest()
     {
         $phpSpock = new PhpSpock();
 
-        $phpSpock->run(function()
-            {
-                setup:
-                $a = 1;
+        try {
+            $phpSpock->run(function()
+                {
+                    setup:
+                    $a = 1;
 
-                when:
-                $a++;
+                    when:
+                    $a++;
 
-                then:
-                $a == 3;
-            });
+                    then:
+                    $a == 3; // foo bar baz
+                });
+
+            $this->fail("Expecting assertion exception");
+        } catch(\PhpSpock\Specification\AssertionException $e) {
+            $this->assertContains('foo bar baz', $e->getMessage(), "Assertion error should contain assertion comment");
+        }
     }
 
     /**
