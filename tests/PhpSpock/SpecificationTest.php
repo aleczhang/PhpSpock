@@ -160,6 +160,30 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
+    public function eventDebug()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_DEBUG) {
+                            $event->setAttribute('result', "foo");
+                        }
+                    }
+                )->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $result = $spec->run();
+        $this->assertEquals('foo', $result);
+    }
+
+
+
+    /**
+     * @test
+     */
     public function executeSpecification()
     {
         $spec = new Specification();

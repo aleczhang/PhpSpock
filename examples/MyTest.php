@@ -28,7 +28,7 @@ class EntityTest extends \PHPUnit_Framework_TestCase
         /**
          * @var $b
          */
-        
+
         setup:
         $a = new PhpSpock();
 

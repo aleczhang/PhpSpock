@@ -148,9 +148,17 @@ class Specification {
 
             if ($this->namespace != '') {
                 $code = 'namespace '. $this->getNamespace() . ' { ' . $code . "\n}";
-
-
             }
+
+            $event = new Event();
+            $event->setAttribute('code', $code);
+            $event->setAttribute('variant', $stepCounter);
+            $this->getEventDispatcher()->dispatch(Event::EVENT_DEBUG, $event);
+            $debugResult = $event->getAttribute('result');
+            if ($debugResult) {
+                return $debugResult;
+            }
+
 
             $code = $this->preprocessCode($code);
 

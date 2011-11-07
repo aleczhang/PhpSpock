@@ -28,6 +28,8 @@ class Event extends \Symfony\Component\EventDispatcher\Event {
      */
     const EVENT_TRANSFORM_TEST_EXCEPTION = 'event_transform_exception';
 
+    const EVENT_DEBUG = 'event_debug';
+
     
 
     private $attributes = array();

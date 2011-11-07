@@ -87,7 +87,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         }
 
         try {
-            $phpSpock = self::createPhpSpockInstance($test);
+            $phpSpock = self::createPhpSpockInstance($test, $class, $method);
 
             $assertionCount = $phpSpock->runWithAdapter(
                 new static(),
@@ -127,7 +127,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         }
     }
 
-    public static function createPhpSpockInstance($test)
+    public static function createPhpSpockInstance($test, \ReflectionClass $class, \ReflectionMethod $method)
     {
         $phpSpock = new \PhpSpock\PhpSpock();
 
@@ -160,6 +160,29 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
             {
 
                 $event->setAttribute('phpunit', $test);
+            });
+
+        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_DEBUG,
+            function(\PhpSpock\Event $event) use($test, $class, $method)
+            {
+                if(preg_match('/\s+@specDebug\s+/', $method->getDocComment())) {
+
+                    $testEndLine = $method->getEndLine();
+
+                    $classCodeLines = file($class->getFilename());
+                    $before = implode(array_slice($classCodeLines, 0, $testEndLine));
+                    $after = implode(array_slice($classCodeLines, $testEndLine));
+
+                    $code = $event->getAttribute('code');
+
+                    $methodName = $method->getName() . '_Variant' . $event->getAttribute('variant');
+
+                    $code = $before . "\n    function __spec_debug_$methodName() { \n" . $code . "\n    }\n" . $after;
+
+                    file_put_contents($class->getFilename(), $code);
+
+                    $event->setAttribute('result', 0);
+                }
             });
         return $phpSpock;
     }
