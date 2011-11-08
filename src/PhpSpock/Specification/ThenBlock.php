@@ -53,20 +53,24 @@ class ThenBlock {
             $comment = $expr->getComment();
             $expr = $expr->getCode();
 
-            $code .= '$op = (' . $expr . ');
-            if (is_bool($op)) {
-                if (!isset($__specification__assertCount)) {
-                    $__specification__assertCount = 0;
-                }
-                $__specification__assertCount++;
+            $code .= '
 
-                if(!$op) {
-                    $msg = "Expression '.str_replace('$', '\$', $expr).' is evaluated to false.";
-                    '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
-                    
-                    throw new \PhpSpock\Specification\AssertionException($msg);
-                }
-            }';
+        $expressionResult = (' . $expr . ');
+
+        if (is_bool($expressionResult)) {
+
+            if (!isset($__specification__assertCount)) {
+                $__specification__assertCount = 0;
+            }
+            $__specification__assertCount++;
+
+            if(!$expressionResult) {
+                $msg = "Expression '.str_replace('$', '\$', $expr).' is evaluated to false.";
+                '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
+
+                throw new \PhpSpock\Specification\AssertionException($msg);
+            }
+        }';
         }
         return $code;
     }

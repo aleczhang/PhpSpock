@@ -41,7 +41,7 @@ class SimpleBlockTest extends \PHPUnit_Framework_TestCase {
     public function compileCode()
     {
         $block = new SimpleBlock();
-        $block->setCode('$foo = 1');
+        $block->setCode('$foo = 1;');
 
         $this->assertEquals('$foo = 1;', $block->compileCode());
     }

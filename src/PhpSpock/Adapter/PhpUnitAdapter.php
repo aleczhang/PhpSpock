@@ -27,11 +27,16 @@
 namespace PhpSpock\Adapter;
 use PhpSpock\Specification\AssertionException;
  
-class PhpUnitAdapter implements \PhpSpock\Adapter {
+class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispatcher\EventSubscriberInterface {
+
+    private $test;
+    private $class;
+    private $method;
+
+    private static $isFirstRun = true;
 
     /**
      * @param $test
-     * @return void
      */
     public function run($test, \PhpSpock\PhpSpock $phpSpock)
     {
@@ -82,18 +87,23 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
             $method = $class->getMethod($test->getName(false));
             $methodName = $method->getName();
 
-        } catch (\ReflectionException $e) {
-            $test->fail($e->getMessage());
-        }
+            $instance = new static();
+            $instance->setTest($test);
+            $instance->setClass($class);
+            $instance->setMethod($method);
 
-        try {
-            $phpSpock = self::createPhpSpockInstance($test, $class, $method);
+            $instance->cleanUpClass();
+
+            $phpSpock = $instance->createPhpSpockInstance();
 
             $assertionCount = $phpSpock->runWithAdapter(
-                new static(),
+                $instance,
                 array($test, $methodName));
 
             $test->addToAssertionCount($assertionCount);
+
+        } catch (\ReflectionException $e) {
+            $test->fail($e->getMessage());
         }
         catch (\Exception $e) {
             $expectedExceptionClass = $test->getExpectedException();
@@ -127,64 +137,111 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         }
     }
 
-    public static function createPhpSpockInstance($test, \ReflectionClass $class, \ReflectionMethod $method)
+    public function createPhpSpockInstance()
     {
         $phpSpock = new \PhpSpock\PhpSpock();
 
-        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_BEFORE_CODE_GENERATION,
-            function(\PhpSpock\Event $event)
-            {
-
-                $code = $event->getAttribute('code');
-
-                $code = str_replace('$this->', '$phpunit->', $code);
-
-                $event->setAttribute('code', $code);
-            });
-
-        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_TRANSFORM_TEST_EXCEPTION,
-            function(\PhpSpock\Event $event)
-            {
-
-                $exception = $event->getAttribute('exception');
-
-                if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
-                    $exception = new AssertionException($exception->getMessage());
-                }
-
-                $event->setAttribute('exception', $exception);
-            });
-
-        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_COLLECT_EXTRA_VARIABLES,
-            function(\PhpSpock\Event $event) use($test)
-            {
-
-                $event->setAttribute('phpunit', $test);
-            });
-
-        $phpSpock->getEventDispatcher()->addListener(\PhpSpock\Event::EVENT_DEBUG,
-            function(\PhpSpock\Event $event) use($test, $class, $method)
-            {
-                if(preg_match('/\s+@specDebug\s+/', $method->getDocComment())) {
-
-                    $testEndLine = $method->getEndLine();
-
-                    $classCodeLines = file($class->getFilename());
-                    $before = implode(array_slice($classCodeLines, 0, $testEndLine));
-                    $after = implode(array_slice($classCodeLines, $testEndLine));
-
-                    $code = $event->getAttribute('code');
-
-                    $methodName = $method->getName() . '_Variant' . $event->getAttribute('variant');
-
-                    $code = $before . "\n    function __spec_debug_$methodName() { \n" . $code . "\n    }\n" . $after;
-
-                    file_put_contents($class->getFilename(), $code);
-
-                    $event->setAttribute('result', 0);
-                }
-            });
+        $phpSpock->getEventDispatcher()->addSubscriber($this);
         return $phpSpock;
+    }
+
+    public function onBeforeCodeGenerationEvent(\PhpSpock\Event $event)
+    {
+        $code = $event->getAttribute('code');
+        $code = str_replace('$this->', '$phpunit->', $code);
+        $event->setAttribute('code', $code);
+    }
+
+    public function onTransformTestEvent(\PhpSpock\Event $event)
+    {
+        $exception = $event->getAttribute('exception');
+
+        if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
+            $exception = new AssertionException($exception->getMessage());
+        }
+
+        $event->setAttribute('exception', $exception);
+    }
+
+    public function onCollectExtraVariablesEvent(\PhpSpock\Event $event)
+    {
+        $event->setAttribute('phpunit', $this->getTest());
+    }
+
+    public function onDebugEvent(\PhpSpock\Event $event)
+    {
+        if(preg_match('/\s+@specDebug\s+/', $this->getMethod()->getDocComment())) {
+
+            $this->generateDebugCode($event);
+            
+//            $event->setAttribute('result', 0);
+        }
+    }
+
+    public function generateDebugCode(\PhpSpock\Event $event)
+    {
+        $code = $event->getAttribute('code');
+
+        $methodName = $this->generateDebugMethodName($event);
+
+        $code = $this->generateDebugMethodCode($methodName, $code);
+        $this->insertCodeIntoFile($this->getMethod()->getEndLine(), $code);
+    }
+
+    public function cleanUpClass()
+    {
+        if (!static::$isFirstRun) {
+            return;
+        }
+
+        $partsToRemove = array();
+        foreach ($this->getClass()->getMethods() as $method) {
+            if (substr($method->getName(), 0, 17) == 'test__spec_debug_') {
+                $partsToRemove[] = array($method->getStartLine() - 2, $method->getEndLine());
+            }
+        }
+        if (count($partsToRemove)) {
+            $classCodeLines = file($this->getClass()->getFilename());
+            foreach ($partsToRemove as $part) {
+                for ($i = $part[0]; $i < $part[1]; $i++) {
+                    unset($classCodeLines[$i]);
+                }
+            }
+            $resultingCode = implode($classCodeLines);
+            file_put_contents($this->getClass()->getFilename(), $resultingCode);
+        }
+
+        static::$isFirstRun = false;
+    }
+
+    protected function removeSliceFromFile($startLine, $endLine) {
+
+        $classCodeLines = file($this->getClass()->getFilename());
+        $before = implode(array_slice($classCodeLines, 0, $startLine));
+        $after = implode(array_slice($classCodeLines, $endLine));
+
+        file_put_contents($this->getClass()->getFilename(), $before . $after);
+    }
+
+    protected function insertCodeIntoFile($afterLine, $code) {
+
+        $classCodeLines = file($this->getClass()->getFilename());
+        $before = implode(array_slice($classCodeLines, 0, $afterLine));
+        $after = implode(array_slice($classCodeLines, $afterLine));
+
+        file_put_contents($this->getClass()->getFilename(), $before . $code . $after);
+    }
+
+    protected function generateDebugMethodCode($methodName, $code)
+    {
+        $code = "\n    function $methodName() { \n" . $code . "\n    }\n";
+        return $code;
+    }
+
+    public function generateDebugMethodName($event)
+    {
+        $methodName = 'test__spec_debug_' . $this->getMethod()->getName() . '_Variant' . $event->getAttribute('variant');
+        return $methodName;
     }
 
     /**
@@ -201,5 +258,71 @@ class PhpUnitAdapter implements \PhpSpock\Adapter {
         catch (\ReflectionException $e) {
         }
         return null;
+    }
+
+    /**
+     * Returns an array of event names this subscriber wants to listen to.
+     *
+     * The array keys are event names and the value can be:
+     *
+     *  * The method name to call (priority defaults to 0)
+     *  * An array composed of the method name to call and the priority
+     *  * An array of arrays composed of the method names to call and respective
+     *    priorities, or 0 if unset
+     *
+     * For instance:
+     *
+     *  * array('eventName' => 'methodName')
+     *  * array('eventName' => array('methodName', $priority))
+     *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
+     *
+     * @return array The event names to listen to
+     *
+     * @api
+     */
+    static function getSubscribedEvents()
+    {
+        return array(
+            \PhpSpock\Event::EVENT_BEFORE_CODE_GENERATION   => 'onBeforeCodeGenerationEvent',
+            \PhpSpock\Event::EVENT_COLLECT_EXTRA_VARIABLES  => 'onCollectExtraVariablesEvent',
+            \PhpSpock\Event::EVENT_TRANSFORM_TEST_EXCEPTION => 'onTransformTestEvent',
+            \PhpSpock\Event::EVENT_DEBUG                    => 'onDebugEvent'
+        );
+    }
+
+    public function setTest($test)
+    {
+        $this->test = $test;
+    }
+
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    public function setClass($class)
+    {
+        $this->class = $class;
+    }
+
+    /**
+     * @return \ReflectionClass
+     */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     * @return \ReflectionMethod
+     */
+    public function getMethod()
+    {
+        return $this->method;
     }
 }

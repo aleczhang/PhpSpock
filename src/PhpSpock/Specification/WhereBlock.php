@@ -54,24 +54,36 @@ class WhereBlock {
 
     public function compileCode($step)
     {
-        $code = '$__parametrization__step = '.$step.'; $__parametrization__counts = array();
-         $__parametrization__lastVariants = array();
-         $__parametrization__lastValues = array();';
+        $code = '
+        $__parametrization__step = '.$step.';
+        $__parametrization__counts = array();
+        $__parametrization__lastVariants = array();
+        $__parametrization__lastValues = array();';
 
         foreach($this->parametrizations as $p) {
 
-            $code .= '$__parametrization__variants = ' . $p->getRightExpression() . ';
+            $code .= '
+
+        // Parametrization set: ' . $p->getLeftExpression() . ' << ' . $p->getRightExpression() . '
+
+            // calculate values
+            $__parametrization__variants = ' . $p->getRightExpression() . ';
             $__parametrization__counts[] = count($__parametrization__variants);
             $__parametrization__elId = $__parametrization__step % count($__parametrization__variants);
 
+            // assign variables
             '.$p->getLeftExpression().' = $__parametrization__variants[$__parametrization__elId];
-            $__parametrization__lastVariants[\''.addslashes($p->getLeftExpression()).'\'] =
-                \'element[\' . $__parametrization__elId .\'] of array: '.addslashes($p->getRightExpression()).'\';
-            $__parametrization__lastValues[\''.addslashes($p->getLeftExpression()).'\'] =
-                var_export('.$p->getLeftExpression().', 1);
-                        ';
+
+            // info for exceptions
+            $__parametrization__lastVariants[\''.addslashes($p->getLeftExpression()).'\'] = \'element[\' . $__parametrization__elId .\'] of array: '.addslashes($p->getRightExpression()).'\';
+            $__parametrization__lastValues[\''.addslashes($p->getLeftExpression()).'\'] = var_export('.$p->getLeftExpression().', 1);
+
+        // End of parametrization set
+        ';
         }
-        $code .= '$__parametrization__hasMoreVariants = (($__parametrization__step + 1) < max($__parametrization__counts));';
+        $code .= '
+
+        $__parametrization__hasMoreVariants = (($__parametrization__step + 1) < max($__parametrization__counts));';
 
         return $code;
     }

@@ -83,7 +83,7 @@ class WhereBlockTest extends \PHPUnit_Framework_TestCase {
          */
 
         $setup = new SimpleBlock();
-        $setup->setCode('$boo = 123');
+        $setup->setCode('$boo = 123;');
         eval($setup->compileCode());
 
         $block = new WhereBlock();
@@ -124,7 +124,7 @@ class WhereBlockTest extends \PHPUnit_Framework_TestCase {
          */
 
         $setup = new SimpleBlock();
-        $setup->setCode('$boo = 123');
+        $setup->setCode('$boo = 123;');
         eval($setup->compileCode());
 
         $block = new WhereBlock();

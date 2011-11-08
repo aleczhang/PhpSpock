@@ -46,6 +46,6 @@ class SimpleBlock {
 
     public function compileCode()
     {
-        return $this->getCode() . ';';
+        return $this->getCode();
     }
 }

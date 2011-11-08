@@ -112,6 +112,18 @@ class Specification {
         return $this->whereBlock;
     }
 
+    protected function attachBlockCode($blockName, $code)
+    {
+        $formatedCode ="
+        /**
+         * $blockName block
+         */
+        $code
+
+";
+        return $formatedCode;
+    }
+
     public function run()
     {
         $ret = null;
@@ -125,19 +137,28 @@ class Specification {
             $code = '';
 
             if ($this->setupBlock) {
-                $code .= $this->setupBlock->compileCode();
+                $code .= $this->attachBlockCode('Setup', $this->setupBlock->compileCode());
             }
             if ($this->whereBlock) {
-                $code .= $this->whereBlock->compileCode($stepCounter);
+                $code .= $this->attachBlockCode('Where', $this->whereBlock->compileCode($stepCounter));
             }
 
             foreach($this->whenThenPairs as $pair) {
                 if ($pair->getWhenBlock()) {
-                    $code .= $pair->getWhenBlock()->compileCode();
+                    $code .= $this->attachBlockCode('When', $pair->getWhenBlock()->compileCode());
                 }
                 if ($pair->getThenBlock()) {
-                    $code .= $pair->getThenBlock()->compileCode();
+                    $code .= $this->attachBlockCode('Then', $pair->getThenBlock()->compileCode());
                 }
+            }
+
+            $event = new Event();
+            $event->setAttribute('code', $code);
+            $event->setAttribute('variant', $stepCounter);
+            $this->getEventDispatcher()->dispatch(Event::EVENT_DEBUG, $event);
+            $debugResult = $event->getAttribute('result');
+            if ($debugResult) {
+                return $debugResult;
             }
 
             if (count($this->useStatements)) {
@@ -148,15 +169,6 @@ class Specification {
 
             if ($this->namespace != '') {
                 $code = 'namespace '. $this->getNamespace() . ' { ' . $code . "\n}";
-            }
-
-            $event = new Event();
-            $event->setAttribute('code', $code);
-            $event->setAttribute('variant', $stepCounter);
-            $this->getEventDispatcher()->dispatch(Event::EVENT_DEBUG, $event);
-            $debugResult = $event->getAttribute('result');
-            if ($debugResult) {
-                return $debugResult;
             }
 
 
