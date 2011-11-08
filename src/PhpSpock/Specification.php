@@ -143,10 +143,22 @@ class Specification {
 
             $code = '';
 
+            if (count($this->varDeclarations)) {
+                $code .= '
+        /**
+         * Mocks
+         */
+         ';
+            }
             // generate mocks
             foreach($this->varDeclarations as $varName => $varType) {
                 $code .= '
         $_mock_'.$varName.' = \Mockery::mock(\''.$varType.'\');';
+            }
+            if (count($this->varDeclarations)) {
+                $code .= '
+
+                ';
             }
 
             if ($this->setupBlock) {

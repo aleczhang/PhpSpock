@@ -19,7 +19,7 @@ class Expression {
 
     public function getCode()
     {
-        return $this->code;
+        return $this->stripComments($this->code);
     }
 
     public function setComment($comment)
@@ -35,6 +35,7 @@ class Expression {
     public function compile()
     {
         $code = $this->code;
+        $code = $this->stripComments($code);
 
         if (preg_match('/^\s*thrown\((("|\')([\\\a-zA-Z0-9_]+)("|\'))?\)\s*$/', $code, $mts)) {
 
@@ -63,21 +64,17 @@ class Expression {
             }
 
             $code .= '
-            $expressionResult = $ret;
-            ';
+            $expressionResult = $ret;';
 
             return $code;
         }
-
-        $code = $this->stripComments($code);
 
         if (trim($code) == '') {
             return null;
         }
 
         $code = '
-        $expressionResult = '.$code.';
-        ';
+        $expressionResult = '.$code.';';
 
         return $code;
     }
@@ -89,9 +86,8 @@ class Expression {
             if (is_array($token) && ($token[0] == T_OPEN_TAG || $token[0] == T_COMMENT || $token[0] == T_DOC_COMMENT)) {
                 continue;
             }
-//            var_dump($token);
             $newCode .= is_array($token) ? $token[1] : $token;
         }
-        return $newCode;
+        return trim($newCode);
     }
 }

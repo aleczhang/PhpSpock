@@ -54,13 +54,11 @@ class ThenBlock {
             $exprCode = $expr->compile();
             $expr = $expr->getCode();
 
-            if (is_null($expr)) {
+            if (is_null($exprCode)) {
                 return '';
             }
             
-            $code .= '
-
-        ' . $exprCode . '
+            $code .= $exprCode . '
 
         if (is_bool($expressionResult)) {
 
