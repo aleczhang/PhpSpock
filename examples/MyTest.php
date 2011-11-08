@@ -32,8 +32,6 @@ class EntityTest extends \PHPUnit_Framework_TestCase
         setup:
         $a = new PhpSpock();
 
-        when:
-        2 + 2;
 
         then:
         $this->assertType('PhpSpock\Adapter\PhpUnitAdapter', $a);

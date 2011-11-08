@@ -60,6 +60,11 @@ class Specification {
      */
     protected $whereBlock;
 
+    /**
+     * @var \PhpSpock\Specification\SimpleBlock
+     */
+    protected $cleanupBlock;
+
     public function setRawBody($rawBody)
     {
         $this->rawBody = $rawBody;
@@ -150,6 +155,10 @@ class Specification {
                 if ($pair->getThenBlock()) {
                     $code .= $this->attachBlockCode('Then', $pair->getThenBlock()->compileCode());
                 }
+            }
+
+            if ($this->cleanupBlock) {
+                $code .= $this->attachBlockCode('Cleanup', $this->cleanupBlock->compileCode());
             }
 
             $event = new Event();
@@ -353,5 +362,21 @@ class Specification {
             $this->eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
         }
         return $this->eventDispatcher;
+    }
+
+    /**
+     * @param \PhpSpock\Specification\SimpleBlock $cleanupBlock
+     */
+    public function setCleanupBlock($cleanupBlock)
+    {
+        $this->cleanupBlock = $cleanupBlock;
+    }
+
+    /**
+     * @return \PhpSpock\Specification\SimpleBlock
+     */
+    public function getCleanupBlock()
+    {
+        return $this->cleanupBlock;
     }
 }

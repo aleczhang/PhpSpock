@@ -34,7 +34,7 @@ use \PhpSpock\SpecificationParser\ThenBlockParser;
  
 class SpecificationParser extends AbstractParser {
 
-    protected $allowedBlocks = array('setup', 'when', 'then', 'where');
+    protected $allowedBlocks = array('setup', 'when', 'then', 'cleanup', 'where');
 
     /**
      * @param $callback
@@ -151,7 +151,10 @@ class SpecificationParser extends AbstractParser {
                         $spec->setSetupBlock($parser->parse($blockCode));
                         break;
 
-                    case 'when':
+                    case 'cleanup':
+                        $parser = new SimpleBlockParser();
+                        $spec->setCleanupBlock($parser->parse($blockCode));
+                        break;
 
                     case 'where':
                         $parser = new WhereBlockParser();
@@ -268,7 +271,8 @@ class SpecificationParser extends AbstractParser {
             '' => array('setup', 'when', 'then'),
             'setup' => array('when', 'then'),
             'when' => array('then'),
-            'then' => array('when', 'where'),
+            'cleanup' => array('where'),
+            'then' => array('when', 'where', 'cleanup'),
         );
 
         $thenCount = 0;

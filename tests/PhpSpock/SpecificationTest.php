@@ -200,6 +200,10 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
                 ->shouldReceive('compileCode')->twice()
                 ->andReturn('$__specification__assertCount += 2;')->mock();
 
+        $cleanupBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('$__specification__assertCount += 3;')->mock();
+
 
         $spec->setSetupBlock($setupBlock);
 
@@ -213,10 +217,12 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $spec->setWhenThenPairs(array($pair1, $pair2));
 
+        $spec->setCleanupBlock($cleanupBlock);
+
         
         $result = $spec->run();
 
-        $this->assertEquals(7, $result);
+        $this->assertEquals(10, $result);
 
     }
 

@@ -12,9 +12,14 @@ Useful links:
 
 ## Installation
 
-For now, only PhpUnit framework is supported
+For now, only PhpUnit framework is supported out of the box.
 
-Just override runTest method in your TestCase or right in test:
+### PhpUnit integration
+
+Integration with phpUnit is optional. The only thing it gives, is that you wouldn'r need anymore to override
+runTest() method in every your test case where you use specification.
+
+Just override runTest method in your common TestCase or right in phpUnit test:
 
     protected function runTest()
     {
@@ -24,6 +29,54 @@ Just override runTest method in your TestCase or right in test:
             return parent::runTest();
         }
     }
+
+### Implementing own test framework adapter
+
+You can take a look at PhpUnitAdapter and how it is integrated into PhpSpock classes. PhpSpock is
+designed in a way that allows easily integrate it in third party libraries.
+If you conquer any situation when you need some extra-functionality (event, some extra interface method, etc.), feel
+free to fork repository on github, and make pull request to merge your changes into main branch. But keep in mind
+that PhpSpock core should remain unaware about any kind of testing framework and iteract with them using event system.
+
+## Dictionary
+
+* Specification - test that is written in Specification style.
+
+## Writing specification
+
+To run test as a specification, you should mark it with annotation @spec or give it a name, that is ending with "Spec":
+
+    /**
+     * @return void
+     * @spec
+     */
+    public function thisIsMySpecificationStyleTest()
+    {
+        ...
+    }
+
+    public function thisIsAlsoSpec()
+    {
+        ...
+    }
+
+## Debugger support with phpUnit
+
+Sometimes it is useful to debug your test in interactive debugger. For example in your IDE with xdebug.
+
+PhpSpoc specification usuualy generates test code and executes it usning eval. So in ususal way you can not
+assign any breakpoints on a specification method.
+
+In this case, if you are using phpUnitAdapter, just add @specDebug annotation (in addition to existing @spec) and PhpSpock will generate
+native phpUnit testCase method next to your specification method. this method will be flooded with internal phpSpock stuff,
+bu it will make the thing. Every time you run your tests this generated test will be executed, so you can assign breakpoints on this
+code.
+
+After you managed with your bugs and willing to get rid of this crappy generated code, just remove annotation @specDebug and phpSpec
+will clean up your test for you.
+
+Also @specDebug may be helpfull in understanding internals of phpSpock. For example, if you have some missunderstandable behavior
+of your test and think that PhpSpock is working wrong.
 
 ## Examples
 
@@ -41,6 +94,7 @@ To execute examples, just run "phpunit" command in PhpSpock folder.
 * Parametrization
 * Several when->then block pairs
 * Custom error message in assertion
+* Support for run under debugger
 
 ## Plans
 

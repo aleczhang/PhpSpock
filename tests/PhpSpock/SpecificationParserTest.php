@@ -75,6 +75,9 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             _then:
             $foo == $result;
 
+            cleanup:
+            unset($foo);
+
             where:
             $sym | $result;
             '!' | '123!';
@@ -105,6 +108,9 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             _then:
             $foo == $result;
 
+            cleanup:
+            unset($foo);
+
             where:
             $sym | $result;
             \'!\' | \'123!\';
@@ -112,7 +118,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $blocks = $result->getRawBlocks();
 
-        $this->assertEquals(6, count($blocks));
+        $this->assertEquals(7, count($blocks));
 
         $this->assertEquals('setup', $blocks[0]['name']);
         $this->assertEquals('$foo = \'123\';', $blocks[0]['code']);
@@ -129,10 +135,13 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('then', $blocks[4]['name']);
         $this->assertEquals('$foo == $result;', $blocks[4]['code']);
 
-        $this->assertEquals('where', $blocks[5]['name']);
+        $this->assertEquals('cleanup', $blocks[5]['name']);
+        $this->assertEquals('unset($foo);', $blocks[5]['code']);
+
+        $this->assertEquals('where', $blocks[6]['name']);
         $this->assertEquals('$sym | $result;
             \'!\' | \'123!\';
-            \'4\' | \'1234\';', $blocks[5]['code']);
+            \'4\' | \'1234\';', $blocks[6]['code']);
         
 
         $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getSetupBlock());
@@ -146,6 +155,8 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertType('PhpSpock\Specification\SimpleBlock', $whenThenPairs[1]->getWhenBlock());
         $this->assertType('PhpSpock\Specification\ThenBlock', $whenThenPairs[1]->getThenBlock());
+
+        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getCleanupBlock());
 
         $this->assertType('PhpSpock\Specification\WhereBlock', $result->getWhereBlock());
     }
