@@ -43,6 +43,28 @@ class SimpleBlockTest extends \PHPUnit_Framework_TestCase {
         $block = new SimpleBlock();
         $block->setCode('$foo = 1;');
 
-        $this->assertEquals('$foo = 1;', $block->compileCode());
+        eval($block->compileCode());
+
+        /**
+         * @var $foo
+         */
+        $this->assertEquals(1, $foo);
+    }
+
+
+    /**
+     * @test
+     */
+    public function compileCodeWithException()
+    {
+        $__specification_Exception = null;
+
+        $block = new SimpleBlock();
+        $block->setCode('throw new \RuntimeException("foo");');
+
+        eval($block->compileCode());
+
+        $this->assertType('\RuntimeException', $__specification_Exception);
+        $this->assertEquals('foo', $__specification_Exception->getMessage());
     }
 }

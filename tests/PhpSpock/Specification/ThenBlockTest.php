@@ -57,6 +57,32 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $foo);
     }
 
+
+
+    /**
+     * @test
+     */
+    public function bugWithQuotationInjection()
+    {
+        $foo = 0;
+
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('$foo = "123"');
+
+        $block = new ThenBlock();
+        $block->setExpressions(
+            array(
+               $expr1
+            )
+        );
+
+        $code = $block->compileCode();
+
+        $this->assertNotNull($code);
+
+        eval($code);
+    }
+
     /**
      * @test
      */
@@ -85,6 +111,62 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
         eval($code);
         $this->assertEquals(1, $foo);
     }
+
+    /**
+     * @test
+     * @expectedException RuntimeException
+     */
+    public function exceptionInWhenBlock()
+    {
+        $foo = 0;
+        $__specification_Exception = new \RuntimeException('test');
+
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('$foo = 1');
+
+        $block = new ThenBlock();
+        $block->setExpressions(
+            array(
+               $expr1
+            )
+        );
+
+        $code = $block->compileCode();
+
+        $this->assertNotNull($code);
+
+        eval($code);
+    }
+
+//    /**
+//     * @test
+//     */
+//    public function exceptionInWhenBlockWithThrown()
+//    {
+//        $foo = 0;
+//        $__specification_Exception = new \RuntimeException('test');
+//
+//        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+//        $expr1->setCode('thrown("RuntimeException")');
+//
+//        $expr2 = new \PhpSpock\Specification\ThenBlock\Expression();
+//        $expr2->setCode('$foo = 3');
+//
+//        $block = new ThenBlock();
+//        $block->setExpressions(
+//            array(
+//               $expr1
+//            )
+//        );
+//
+//        $code = $block->compileCode();
+//
+//        $this->assertNotNull($code);
+//
+//        eval($code);
+//
+//        $this->assertEquals(3, $foo);
+//    }
 
     /**
      * @test

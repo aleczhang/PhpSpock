@@ -48,6 +48,7 @@ To run test as a specification, you should mark it with annotation @spec or give
 
     /**
      * @return void
+     * @test
      * @spec
      */
     public function thisIsMySpecificationStyleTest()
@@ -59,6 +60,8 @@ To run test as a specification, you should mark it with annotation @spec or give
     {
         ...
     }
+
+NB! Spec should be also a valid phpUnit test when using phpUnit adapter.
 
 ## Debugger support with phpUnit
 

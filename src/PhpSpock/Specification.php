@@ -195,13 +195,13 @@ class Specification {
                 $__parametrization__hasMoreVariants = false;
                 $__parametrization__lastVariants = null;
                 $__parametrization__lastValues = null;
+//                $__specification__debug_output = '';
 
                 $_ret = null; // for testing
 
 //                  var_dump($code);
 
                 try {
-
                     eval($code);
 
                 } catch(\Exception $e) {
@@ -238,6 +238,12 @@ class Specification {
                                 $msg .= " $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
                             }
                         }
+
+//                        if ($__specification__debug_output != '') {
+//                            $msg .= "\n\n Debug output: \n---------------------------------------------------\n";
+//                            $msg .= $__specification__debug_output;
+//                            $msg .= "\n---------------------------------------------------\n";
+//                        }
 
                         throw new AssertionException($msg);
                     }

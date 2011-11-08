@@ -1,13 +1,10 @@
 <?php
 
-namespace Example\Trololo;
+namespace MyExamples;
 
 use \PhpSpock\Adapter\PhpUnitAdapter as PhpSpock;
 
-/**
- * @group myTestGroup
- */
-class EntityTest extends \PHPUnit_Framework_TestCase
+class WithoutIntegrationTest extends \PHPUnit_Framework_TestCase
 {
     protected function runTest()
     {
@@ -25,20 +22,14 @@ class EntityTest extends \PHPUnit_Framework_TestCase
      */
     public function testIndex()
     {
-        /**
-         * @var $b
-         */
-
         setup:
-        $a = new PhpSpock();
+        $calc = new \Example\Calc();
 
+        when:
+        $b = $calc->add(1, 3);
 
         then:
-        $this->assertType('PhpSpock\Adapter\PhpUnitAdapter', $a);
-        'PhpSpock\Adapter\PhpUnitAdapter' == get_class($a);
-
-        where:
-        $b << array(1, 2, 3);
+        $b == 4;
     }
 }
 

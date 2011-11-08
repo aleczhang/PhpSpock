@@ -51,11 +51,12 @@ class ThenBlock {
         foreach($this->expressions as $expr) {
 
             $comment = $expr->getComment();
+            $exprCode = $expr->compile();
             $expr = $expr->getCode();
-
+            
             $code .= '
 
-        $expressionResult = (' . $expr . ');
+        ' . $exprCode . '
 
         if (is_bool($expressionResult)) {
 
@@ -65,13 +66,20 @@ class ThenBlock {
             $__specification__assertCount++;
 
             if(!$expressionResult) {
-                $msg = "Expression '.str_replace('$', '\$', $expr).' is evaluated to false.";
+                $msg = "Expression '.str_replace('$', '\$', addslashes($expr)).' is evaluated to false.";
                 '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
 
                 throw new \PhpSpock\Specification\AssertionException($msg);
             }
         }';
         }
+
+        $code .= '
+        if (isset($__specification_Exception) && $__specification_Exception instanceof \Exception) {
+            throw $__specification_Exception;
+        }
+        ';
+
         return $code;
     }
 }

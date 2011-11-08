@@ -46,6 +46,12 @@ class SimpleBlock {
 
     public function compileCode()
     {
-        return $this->getCode();
+        return '
+        try {
+            '.$this->getCode().'
+        } catch(\Exception $e) {
+            $__specification_Exception = $e;
+        }
+        ';
     }
 }
