@@ -56,8 +56,9 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         // add some noise here to add complexity to parsing
         function(){}; $spec = function() { /** this line should not be saved! */
             /**
-             * @var $sym
-             * @var $result
+             * @var $sym *Mock*
+             * @var $foo
+             * @var $result MyClass *Mock*
              */
 
             setup:
@@ -89,8 +90,9 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
         $this->assertType('PhpSpock\Specification', $result);
 
         $this->assertEquals('/**
-             * @var $sym
-             * @var $result
+             * @var $sym *Mock*
+             * @var $foo
+             * @var $result MyClass *Mock*
              */
 
             setup:
@@ -120,6 +122,13 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(7, count($blocks));
 
+        $varDeclarations = $result->getVarDeclarations();
+        $this->assertEquals(2, count($varDeclarations));
+        $this->assertArrayHasKey('sym', $varDeclarations);
+        $this->assertArrayHasKey('result', $varDeclarations);
+        $this->assertEquals('', $varDeclarations['sym']);
+        $this->assertEquals('MyClass', $varDeclarations['result']);
+
         $this->assertEquals('setup', $blocks[0]['name']);
         $this->assertEquals('$foo = \'123\';', $blocks[0]['code']);
 
@@ -144,7 +153,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             \'4\' | \'1234\';', $blocks[6]['code']);
         
 
-        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getSetupBlock());
+        $this->assertType('PhpSpock\Specification\SetupBlock', $result->getSetupBlock());
 
         $whenThenPairs = $result->getWhenThenPairs();
         $this->assertTrue(is_array($whenThenPairs));

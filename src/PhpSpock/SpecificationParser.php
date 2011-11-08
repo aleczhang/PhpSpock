@@ -28,6 +28,7 @@ namespace PhpSpock;
 
 use PhpSpock\SpecificationParser\AbstractParser;
 
+use \PhpSpock\SpecificationParser\SetupBlockParser;
 use \PhpSpock\SpecificationParser\SimpleBlockParser;
 use \PhpSpock\SpecificationParser\WhereBlockParser;
 use \PhpSpock\SpecificationParser\ThenBlockParser;
@@ -87,7 +88,7 @@ class SpecificationParser extends AbstractParser {
         $body = preg_replace('/^\s*{/', '', $body); // fix for { on next line after function()
 
         try {
-            $blocks = $this->splitOnBlocks($body);
+            list($tDocComments, $blocks) = $this->splitOnBlocks($body);
 
         } catch(\Exception $e) {
             $newEx = new ParseException('Can not parse function defined in file ' . $fileName .' on line '. $lineStart
@@ -100,6 +101,9 @@ class SpecificationParser extends AbstractParser {
         list($namespace, $useStatements) = $parser->parseFile($fileName);
 
         $spec = new Specification();
+        $spec->setVarDeclarations(
+            $this->parseMockVars($tDocComments)
+        );
         $spec->setNamespace($namespace);
         $spec->setUseStatements($useStatements);
         $spec->setFile($fileName);
@@ -109,6 +113,17 @@ class SpecificationParser extends AbstractParser {
         $spec->setRawBlocks($blocks);
         $this->parseBlocks($blocks, $spec);
         return $spec;
+    }
+
+    private function parseMockVars($tDocComments)
+    {
+        $vars = array();
+        if (preg_match_all('/@var\s+\$([a-zA-Z0-9_\\\]+)(\s+)?([a-zA-Z0-9_\\\]+)?\s+\*Mock\*\s+/', $tDocComments, $mts)) {
+            foreach ($mts[1] as $index => $varName) {
+                $vars[$varName] = $mts[3][$index];
+            }
+        }
+        return $vars;
     }
 
     public function parseBlocks($blocks, Specification $spec)
@@ -147,7 +162,7 @@ class SpecificationParser extends AbstractParser {
                 switch ($blockName) {
 
                     case 'setup':
-                        $parser = new SimpleBlockParser();
+                        $parser = new SetupBlockParser();
                         $spec->setSetupBlock($parser->parse($blockCode));
                         break;
 
@@ -183,12 +198,17 @@ class SpecificationParser extends AbstractParser {
 
         $suggestedBlockName = '';
 
+        $tDocComments = '';
+
         $blockId = 0;
         foreach ($allTokens as $token) {
 
             // if setup block is not started yet
             if ($blockSequence == 0 && $currentBlockName == 'setup' && count($blockTokens) == 0
                     && in_array($token[0], array(T_COMMENT, T_DOC_COMMENT, T_WHITESPACE))) {
+                if ($token[0] == T_DOC_COMMENT) {
+                    $tDocComments .= $token[1];
+                }
                 continue;
             }
 
@@ -246,7 +266,7 @@ class SpecificationParser extends AbstractParser {
         $blocks = $this->collectBlocksCode($blockTokens);
 
 
-        return $blocks;
+        return array($tDocComments, $blocks);
     }
 
     private function collectBlocksCode($blockTokens)

@@ -35,6 +35,24 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         \Mockery::close();
     }
 
+
+    /**
+     * @test
+     */
+    public function expressionShouldNotCompileCommentOnlyExpression()
+    {
+        $expressionResult = null;
+
+        $exp = new Expression();
+        $exp->setCode('// hoho');
+
+        $code = $exp->compile();
+
+        eval($code);
+
+        $this->assertNull($expressionResult);
+    }
+
     /**
      * @test
      */

@@ -27,14 +27,23 @@ class FixtureExampleTest extends IntegrationExampleTestCase
 
 
     /**
+     * @group debug
      * @spec
      */
     public function testIndex()
     {
+        /**
+         * @var $a \Example\Calc *Mock*
+         * @var $ab \Example\Calc *Mock*
+         * @var $a *Mock*
+         */
+        setup:
+
         when:
         $b = $this->myResource->add(1, 3);
 
         then:
+//        1 * $a->getCode() >> 1;
         $b == 4;
     }
 }

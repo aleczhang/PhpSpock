@@ -33,7 +33,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
     private $class;
     private $method;
 
-    private static $isFirstRun = true;
+    private static $isCleaned = array();
 
     /**
      * @param $test
@@ -190,7 +190,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
 
     public function cleanUpClass()
     {
-        if (!static::$isFirstRun) {
+        if (isset(static::$isCleaned[$this->getClass()->getName()])) {
             return;
         }
 
@@ -211,7 +211,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
             file_put_contents($this->getClass()->getFilename(), $resultingCode);
         }
 
-        static::$isFirstRun = false;
+        static::$isCleaned[$this->getClass()->getName()] = true;
     }
 
     protected function removeSliceFromFile($startLine, $endLine) {

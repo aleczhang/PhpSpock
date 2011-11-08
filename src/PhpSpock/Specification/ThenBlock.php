@@ -53,6 +53,10 @@ class ThenBlock {
             $comment = $expr->getComment();
             $exprCode = $expr->compile();
             $expr = $expr->getCode();
+
+            if (is_null($expr)) {
+                return '';
+            }
             
             $code .= '
 

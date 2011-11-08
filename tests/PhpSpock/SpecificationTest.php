@@ -179,6 +179,42 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('foo', $result);
     }
 
+    /**
+     * @test
+     */
+    public function mockObjectGeneration()
+    {
+        $spec = new Specification();
+
+        $setupBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('$__specification__assertCount = 1;')->mock();
+
+        $whenBlock = \Mockery::mock(SimpleBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('if($_mock_foo instanceof \Mockery\MockInterface) $__specification__assertCount += 1;')->mock();
+
+        $thenBlock = \Mockery::mock(ThenBlock::clazz())
+                ->shouldReceive('compileCode')->once()
+                ->andReturn('if($_mock_baz instanceof \Mockery\MockInterface) $__specification__assertCount += 2;')->mock();
+
+
+        $spec->setSetupBlock($setupBlock);
+        $pair1 = new \PhpSpock\Specification\WhenThenPair();
+        $pair1->setWhenBlock($whenBlock);
+        $pair1->setThenBlock($thenBlock);
+        $spec->setWhenThenPairs(array($pair1));
+
+        $spec->setVarDeclarations(array(
+              'foo' => '',
+              'baz' => '',
+          ));
+
+        $result = $spec->run();
+
+        $this->assertEquals(4, $result);
+
+    }
 
 
     /**

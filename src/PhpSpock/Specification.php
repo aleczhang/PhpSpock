@@ -40,6 +40,8 @@ class Specification {
     protected $namespace;
     protected $useStatements;
 
+    protected $varDeclarations = array();
+
     /**
      * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
      */
@@ -140,6 +142,12 @@ class Specification {
         while($hasMoreVariants) {
 
             $code = '';
+
+            // generate mocks
+            foreach($this->varDeclarations as $varName => $varType) {
+                $code .= '
+        $_mock_'.$varName.' = \Mockery::mock(\''.$varType.'\');';
+            }
 
             if ($this->setupBlock) {
                 $code .= $this->attachBlockCode('Setup', $this->setupBlock->compileCode());
@@ -384,5 +392,15 @@ class Specification {
     public function getCleanupBlock()
     {
         return $this->cleanupBlock;
+    }
+
+    public function setVarDeclarations($varDeclarations)
+    {
+        $this->varDeclarations = $varDeclarations;
+    }
+
+    public function getVarDeclarations()
+    {
+        return $this->varDeclarations;
     }
 }
