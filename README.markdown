@@ -99,6 +99,24 @@ To execute examples, just run "phpunit" command in PhpSpock folder.
 * Custom error message in assertion
 * Support for run under debugger
 
+## Known problems
+
+### Problem with @specDebug
+
+**Description:**
+When you generate debug code with @specDebug, some errors are thrown into console. The same thing when you delete
+this annotation.
+
+**Reason:**
+PhpUnitAdapter changes code of class where the marked test method resist (to insert debug code). And now when
+specification parser tries to get body of some other test in this file using reflection, it fails, beacuse
+reflection does not reflect file changes.
+
+**Solution:**
+If you need to add/remove @specDebug annotation, just execute phpunit command twice gnoring all errors appeared.
+Debug code still will be valid and should run correctly on a second time.
+
+
 ## Plans
 
 Features to implement:
