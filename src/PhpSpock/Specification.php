@@ -153,7 +153,7 @@ class Specification {
             // generate mocks
             foreach($this->varDeclarations as $varName => $varType) {
                 $code .= '
-        $_mock_'.$varName.' = \Mockery::mock(\''.$varType.'\');';
+        $'.$varName.' = \Mockery::mock(\''.$varType.'\');';
             }
             if (count($this->varDeclarations)) {
                 $code .= '
@@ -175,6 +175,18 @@ class Specification {
                 if ($pair->getThenBlock()) {
                     $code .= $this->attachBlockCode('Then', $pair->getThenBlock()->compileCode());
                 }
+            }
+
+            foreach($this->varDeclarations as $varName => $varType) {
+                $code .= '
+        try {
+            $'.$varName.'->mockery_verify();
+            $'.$varName.'->mockery_teardown();
+        } catch (\Exception $e) {
+            $msg = "Mock \$'.$varName.' validation exception: " . $e->getMessage();
+            throw new \PhpSpock\Specification\AssertionException($msg);
+        }
+                ';
             }
 
             if ($this->cleanupBlock) {

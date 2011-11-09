@@ -192,11 +192,11 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $whenBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('if($_mock_foo instanceof \Mockery\MockInterface) $__specification__assertCount += 1;')->mock();
+                ->andReturn('if($foo instanceof \Mockery\MockInterface) $__specification__assertCount += 1;')->mock();
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('if($_mock_baz instanceof \Mockery\MockInterface) $__specification__assertCount += 2;')->mock();
+                ->andReturn('if($baz instanceof \Mockery\MockInterface) $__specification__assertCount += 2;')->mock();
 
 
         $spec->setSetupBlock($setupBlock);
