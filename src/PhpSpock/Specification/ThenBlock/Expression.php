@@ -44,7 +44,7 @@ class Expression {
             $code = '
             $ret = isset($__specification_Exception) && $__specification_Exception instanceof \\'.$exceptionName.';
             $__specification_Exception = null;
-            $expressionResult = $ret;
+            $__specification__expressionResult = $ret;
             ';
 
             return $code;
@@ -64,7 +64,7 @@ class Expression {
             }
 
             $code .= '
-            $expressionResult = $ret;';
+            $__specification__expressionResult = $ret;';
 
             return $code;
         }
@@ -74,7 +74,7 @@ class Expression {
         }
 
         $code = '
-        $expressionResult = '.$code.';';
+        $__specification__expressionResult = '.$code.';';
 
         return $code;
     }

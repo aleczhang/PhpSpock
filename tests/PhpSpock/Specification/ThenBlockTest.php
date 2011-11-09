@@ -58,6 +58,36 @@ class ThenBlockTest extends \PHPUnit_Framework_TestCase {
     }
 
 
+    /**
+     * @test
+     */
+    public function compileCodeWithExpression()
+    {
+        $foo = 0;
+
+        $block = new ThenBlock();
+
+        $expr1 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr1->setCode('1 * $a->get()');
+
+        $expr2 = new \PhpSpock\Specification\ThenBlock\Expression();
+        $expr2->setCode('$foo = 1');
+
+        $block->setExpressions(array($expr1, $expr2));
+
+        $code = $block->compileCode();
+
+        $conditions = $block->getPreConditions();
+        $this->assertEquals(1, count($conditions));
+        $this->assertEquals('$a->shouldReceive("get")->withNoArgs()->once()', $conditions[0]);
+
+        $this->assertNotNull($code);
+
+        eval($code);
+        $this->assertEquals(1, $foo);
+    }
+
+
 
     /**
      * @test

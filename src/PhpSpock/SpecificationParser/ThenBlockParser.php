@@ -40,47 +40,63 @@ class ThenBlockParser extends AbstractParser {
         $expressions = array();
 
         $expressionTokens = array();
-        
+
+        $bracesOpen = 0;
         for($i=0; $i < count($tokens); $i++) {
 
-            if ($tokens[$i][0] == ';') {
-                $expr = new \PhpSpock\Specification\ThenBlock\Expression();
-                $code = '';
-                foreach($expressionTokens as $token) {
-                    $code .= $token[1];
-                }
-                $expr->setCode(trim($code));
-                $expressionTokens = array();
+            switch($tokens[$i][0]) {
+                case '(':
+                case '{':
+                    $bracesOpen++;
+                    $expressionTokens[] = $tokens[$i];
+                    break;
+                case ')':
+                case '}':
+                    $bracesOpen--;
+                    $expressionTokens[] = $tokens[$i];
+                    break;
+                case ';':
 
-                $comment = null;
-                if (isset($tokens[$i + 1])) {
-                    if (in_array($tokens[$i + 1][0], array(T_COMMENT, T_DOC_COMMENT)))
-                    {
-                        $comment = $tokens[$i + 1][1];
-                        $i++;
-                    }
-
-                    if (isset($tokens[$i + 2])) {
-                        if ($tokens[$i + 1][0] == T_WHITESPACE && in_array($tokens[$i + 2][0], array(T_COMMENT, T_DOC_COMMENT))) {
-                            $comment = $tokens[$i + 2][1];
-
-                            $i += 2;
+                    if ($bracesOpen == 0) {
+                        $expr = new \PhpSpock\Specification\ThenBlock\Expression();
+                        $code = '';
+                        foreach($expressionTokens as $token) {
+                            $code .= $token[1];
                         }
-                    }
-                }
-                if ($comment) {
-                    if (substr($comment, 0, 2) == '//') {
-                        $comment = substr($comment, 2);
+                        $expr->setCode(trim($code));
+                        $expressionTokens = array();
+
+                        $comment = null;
+                        if (isset($tokens[$i + 1])) {
+                            if (in_array($tokens[$i + 1][0], array(T_COMMENT, T_DOC_COMMENT)))
+                            {
+                                $comment = $tokens[$i + 1][1];
+                                $i++;
+                            }
+
+                            if (isset($tokens[$i + 2])) {
+                                if ($tokens[$i + 1][0] == T_WHITESPACE && in_array($tokens[$i + 2][0], array(T_COMMENT, T_DOC_COMMENT))) {
+                                    $comment = $tokens[$i + 2][1];
+
+                                    $i += 2;
+                                }
+                            }
+                        }
+                        if ($comment) {
+                            if (substr($comment, 0, 2) == '//') {
+                                $comment = substr($comment, 2);
+                            }
+
+                            $expr->setComment(trim($comment));
+                        }
+                        $expressions[] = $expr;
+
+                        continue(2);
                     }
 
-                    $expr->setComment(trim($comment));
-                }
-                $expressions[] = $expr;
-                
-                continue;
+                default:
+                    $expressionTokens[] = $tokens[$i];
             }
-
-            $expressionTokens[] = $tokens[$i];
         }
 
         $block = new \PhpSpock\Specification\ThenBlock();

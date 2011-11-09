@@ -41,7 +41,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
      */
     public function expressionShouldNotCompileCommentOnlyExpression()
     {
-        $expressionResult = null;
+        $__specification__expressionResult = null;
 
         $exp = new Expression();
         $exp->setCode('// hoho');
@@ -50,7 +50,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
 
         eval($code);
 
-        $this->assertNull($expressionResult);
+        $this->assertNull($__specification__expressionResult);
     }
 
     /**
@@ -58,7 +58,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
      */
     public function expressionShouldReturnExpressionResultVariable()
     {
-        $expressionResult = null;
+        $__specification__expressionResult = null;
 
         $exp = new Expression();
         $exp->setCode('123');
@@ -70,7 +70,7 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         /**
          * @var $foo
          */
-        $this->assertEquals(123, $expressionResult);
+        $this->assertEquals(123, $__specification__expressionResult);
     }
 
     /**
@@ -86,10 +86,10 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
     }
 
     /**
@@ -105,18 +105,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
 
         $__specification_Exception = new \Exception('foo');
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
         $this->assertNull($__specification_Exception);
     }
 
@@ -133,18 +133,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
 
         $__specification_Exception = new \Exception('foo');
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
         $this->assertNull($__specification_Exception);
     }
 
@@ -161,18 +161,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
 
         $__specification_Exception = new \Exception('foo');
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
         $this->assertNull($__specification_Exception);
     }
 
@@ -189,18 +189,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
 
         $__specification_Exception = new \RuntimeException('foo');
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
         $this->assertNull($__specification_Exception);
     }
 
@@ -217,18 +217,18 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
 
         $__specification_Exception = new \RuntimeException('foo');
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertFalse($expressionResult);
+        $this->assertFalse($__specification__expressionResult);
         $this->assertNotNull($__specification_Exception);
     }
 
@@ -245,19 +245,19 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         $__specification_Exception = null;
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
 
         $__specification_Exception = new \Exception('foo');
 
 
         /**
-         * @var $expressionResult;
+         * @var $__specification__expressionResult;
          */
         eval($code);
-        $this->assertTrue($expressionResult);
+        $this->assertTrue($__specification__expressionResult);
         $this->assertNotNull($__specification_Exception);
     }
 

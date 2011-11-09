@@ -216,6 +216,7 @@ class SpecificationParser extends AbstractParser {
                 $blockSequence++;
                 if ($blockSequence == 1) {
                     $suggestedBlockName = preg_replace('/^_+/','', $token[1]);
+                    $suggestedBlockName = preg_replace('/_+$/','', $suggestedBlockName);
                 }
                 if ($blockSequence >= count($blockHeaderSequence)) {
                     

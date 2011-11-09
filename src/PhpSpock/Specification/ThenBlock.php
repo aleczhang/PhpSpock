@@ -30,6 +30,8 @@ class ThenBlock {
 
     private $expressions = array();
 
+    private $preConditions = array();
+
     public function setExpressions($expressions)
     {
         $this->expressions = $expressions;
@@ -48,6 +50,8 @@ class ThenBlock {
     {
         $code = '';
 
+        $this->preConditions = array();
+
         foreach($this->expressions as $expr) {
 
             $comment = $expr->getComment();
@@ -57,21 +61,27 @@ class ThenBlock {
             if (is_null($exprCode)) {
                 return '';
             }
-            
+
+            $transformed = $this->getExpressionTransformer()->transform($expr);
+            if ($transformed != $expr) {
+                $this->preConditions[] = $transformed;
+                continue;
+            }
+
             $code .= $exprCode . '
 
-        if (is_bool($expressionResult)) {
+        if (is_bool($__specification__expressionResult)) {
 
             if (!isset($__specification__assertCount)) {
                 $__specification__assertCount = 0;
             }
             $__specification__assertCount++;
 
-            if(!$expressionResult) {
-                $msg = "Expression '.str_replace('$', '\$', addslashes($expr)).' is evaluated to false.";
-                '.($comment ? '$msg .= "\n\n' . addslashes($comment) . '";' : '') .'
+            if(!$__specification__expressionResult) {
+                $__specification__msg = "Expression '.str_replace('$', '\$', addslashes($expr)).' is evaluated to false.";
+                '.($comment ? '$__specification__msg .= "\n\n' . addslashes($comment) . '";' : '') .'
 
-                throw new \PhpSpock\Specification\AssertionException($msg);
+                throw new \PhpSpock\Specification\AssertionException($__specification__msg);
             }
         }';
         }
@@ -83,5 +93,23 @@ class ThenBlock {
         ';
 
         return $code;
+    }
+
+    public function setPreConditions($preConditions)
+    {
+        $this->preConditions = $preConditions;
+    }
+
+    public function getPreConditions()
+    {
+        return $this->preConditions;
+    }
+
+    /**
+     * @return \PhpSpock\Specification\ExpressionTransformer
+     */
+    public function getExpressionTransformer()
+    {
+        return new ExpressionTransformer();
     }
 }

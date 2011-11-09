@@ -73,7 +73,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             _when:
             $foo .= $sym;
 
-            _then:
+            then_:
             $foo == $result;
 
             cleanup:
@@ -107,7 +107,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             _when:
             $foo .= $sym;
 
-            _then:
+            then_:
             $foo == $result;
 
             cleanup:

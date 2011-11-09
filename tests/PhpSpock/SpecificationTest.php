@@ -196,7 +196,9 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->once()
-                ->andReturn('if($baz instanceof \Mockery\MockInterface) $__specification__assertCount += 2;')->mock();
+                    ->andReturn('if($baz instanceof \Mockery\MockInterface) $__specification__assertCount += 2;')
+                ->shouldReceive('getPreConditions')->once()
+                    ->andReturn(array('$__specification__assertCount += 3'))->mock();  // and +1 for preconditions
 
 
         $spec->setSetupBlock($setupBlock);
@@ -212,7 +214,7 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $result = $spec->run();
 
-        $this->assertEquals(4, $result);
+        $this->assertEquals(8, $result);
 
     }
 
@@ -234,7 +236,9 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->twice()
-                ->andReturn('$__specification__assertCount += 2;')->mock();
+                ->andReturn('$__specification__assertCount += 2;')
+                ->shouldReceive('getPreConditions')->twice()
+                    ->andReturn(array('$__specification__assertCount += 3'))->mock(); // and +2 for preconditions
 
         $cleanupBlock = \Mockery::mock(SimpleBlock::clazz())
                 ->shouldReceive('compileCode')->once()
@@ -258,7 +262,7 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
         
         $result = $spec->run();
 
-        $this->assertEquals(10, $result);
+        $this->assertEquals(18, $result);
 
     }
 
@@ -280,7 +284,9 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $thenBlock = \Mockery::mock(ThenBlock::clazz())
                 ->shouldReceive('compileCode')->times(4)
-                ->andReturn('$__specification__assertCount += 2;')->mock();
+                ->andReturn('$__specification__assertCount += 2;')
+                ->shouldReceive('getPreConditions')->times(4)
+                    ->andReturn(array('$__specification__assertCount += 3'))->mock(); // and +4 for preconditions
 
 
         $spec->setSetupBlock($setupBlock);
@@ -312,7 +318,7 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
 
         $result = $spec->run();
 
-        $this->assertEquals(14, $result);
+        $this->assertEquals(30, $result);
 
     }
 }
