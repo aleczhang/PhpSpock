@@ -67,58 +67,6 @@ class Specification {
      */
     protected $cleanupBlock;
 
-    public function setRawBody($rawBody)
-    {
-        $this->rawBody = $rawBody;
-    }
-
-    public function getRawBody()
-    {
-        return $this->rawBody;
-    }
-
-    public function setRawBlocks($rawBlocks)
-    {
-        $this->rawBlocks = $rawBlocks;
-    }
-
-    public function getRawBlocks()
-    {
-        return $this->rawBlocks;
-    }
-
-    /**
-     * @param \PhpSpock\Specification\SimpleBlock $setupBlock
-     */
-    public function setSetupBlock($setupBlock)
-    {
-        $this->setupBlock = $setupBlock;
-    }
-
-    /**
-     * @return \PhpSpock\Specification\SimpleBlock
-     */
-    public function getSetupBlock()
-    {
-        return $this->setupBlock;
-    }
-
-    /**
-     * @param \PhpSpock\Specification\WhereBlock $whereBlock
-     */
-    public function setWhereBlock($whereBlock)
-    {
-        $this->whereBlock = $whereBlock;
-    }
-
-    /**
-     * @return \PhpSpock\Specification\WhereBlock
-     */
-    public function getWhereBlock()
-    {
-        return $this->whereBlock;
-    }
-
     protected function attachBlockCode($blockName, $code)
     {
         $formatedCode ="
@@ -133,213 +81,49 @@ class Specification {
 
     public function run()
     {
-        $ret = null;
         $stepCounter = 1;
         $hasMoreVariants = true;
 
         $__specification__assertCount = 0;
 
-        while($hasMoreVariants) {
+        while($hasMoreVariants) { // loop until we have parameterization variants
 
             $__specification__code = '';
 
-            if (count($this->varDeclarations)) {
-                $__specification__code .= '
-        /**
-         * Mocks
-         */
-         ';
-            }
-            // generate mocks
-            foreach($this->varDeclarations as $varName => $varType) {
-                $__specification__code .= '
-        $'.$varName.' = \Mockery::mock(\''.$varType.'\');';
-            }
-            if (count($this->varDeclarations)) {
-                $__specification__code .= '
-
-                ';
-            }
+            $__specification__code .= $this->buildMocksDeclaration();
 
             if ($this->setupBlock) {
-                $__specification__code .= $this->attachBlockCode('Setup', $this->setupBlock->compileCode());
+                $__specification__code .= $this->buildSetupCode();
             }
             if ($this->whereBlock) {
-                $__specification__code .= $this->attachBlockCode('Where', $this->whereBlock->compileCode($stepCounter));
+                $__specification__code .= $this->buildParametrizationCode($stepCounter);
             }
 
-            foreach($this->whenThenPairs as $pair) {
-
-                $thenCode = '';
-                if ($pair->getThenBlock()) {
-                    $thenCode = $this->attachBlockCode('Then', $pair->getThenBlock()->compileCode());
-
-                    $preconditions = $pair->getThenBlock()->getPreConditions();
-                    if (count($preconditions)) {
-                        foreach($preconditions as $precondition) {
-                            $__specification__code .= '
-        ' . $precondition . ';';
-                        }
-                        $__specification__code .= '
-        if (!isset($__specification__assertCount)) {
-            $__specification__assertCount = 0;
-        }
-        $__specification__assertCount += ' . count($preconditions) . ';';
-                    }
-
-                    foreach($this->varDeclarations as $varName => $varType) {
-                        $thenCode .= '
-        try {
-            $'.$varName.'->mockery_verify();
-            $'.$varName.'->mockery_teardown();
-        } catch (\Exception $__specification__e) {
-            $__specification__msg = "Mock \$'.$varName.' validation exception: " . $__specification__e->getMessage();
-            throw new \PhpSpock\Specification\AssertionException($__specification__msg);
-        }
-                ';
-            }
-        }
-
-                if ($pair->getWhenBlock()) {
-                    $__specification__code .= $this->attachBlockCode('When', $pair->getWhenBlock()->compileCode());
-                }
-                $__specification__code .= $thenCode;
-            }
+            $__specification__code .= $this->buildWhenThenPairsCode();
 
             if ($this->cleanupBlock) {
-                $__specification__code .= $this->attachBlockCode('Cleanup', $this->cleanupBlock->compileCode());
+                $__specification__code .= $this->buildCleanupCode();
             }
 
-            $event = new Event();
-            $event->setAttribute('code', $__specification__code);
-            $event->setAttribute('variant', $stepCounter);
-            $this->getEventDispatcher()->dispatch(Event::EVENT_DEBUG, $event);
-            $debugResult = $event->getAttribute('result');
-            if ($debugResult) {
+            $debugResult = $this->tryToUseDebugger($__specification__code, $stepCounter);
+
+            // debug mode
+            if ($this->debuggerHasReturnedSomeNotNullResult($debugResult)) {
                 return $debugResult;
             }
 
-            if (count($this->useStatements)) {
-                foreach($this->useStatements as $alias => $class) {
-                    $__specification__code = "use $class as $alias;\n" . $__specification__code;
-                }
+            if ($this->haveAnyUseStatementDeclarations()) {
+                $__specification__code = $this->wrapCodeWithUseDeclarationsCode($__specification__code);
             }
 
-            if ($this->namespace != '') {
-                $__specification__code = 'namespace '. $this->getNamespace() . ' { ' . $__specification__code . "\n}";
+            if ($this->namespaceIsNotDefault()) {
+                $__specification__code = $this->wrapCodeWithNamespaceDeclaration($__specification__code);
             }
 
+            $__specification__code = $this->giveEventListenersAChanceToModifyCode($__specification__code);
 
-            $__specification__code = $this->preprocessCode($__specification__code);
+            $hasMoreVariants = $this->executeGeneratedCode($__specification__assertCount, $__specification__code);
 
-            $__specification__extraVars = $this->getExtraVars();
-
-            $__specification__eventDispatcher = $this->getEventDispatcher();
-
-            // eval will be executed in it's own scope
-            $func = function() use($__specification__code, &$__specification__assertCount, $__specification__extraVars, $__specification__eventDispatcher) {
-
-                extract($__specification__extraVars);
-
-                $__parametrization__hasMoreVariants = false;
-                $__parametrization__lastVariants = null;
-                $__parametrization__lastValues = null;
-
-                try {
-                    eval($__specification__code);
-
-                } catch(\Exception $__specification__currentException) {
-
-                    $__specification__currentEvent = new Event();
-                    $__specification__currentEvent->setAttribute('exception', $__specification__currentException);
-
-                    /**
-                     * @var $__specification__eventDispatcher \Symfony\Component\EventDispatcher\EventDispatcherInterface
-                     */
-                    $__specification__eventDispatcher->dispatch(Event::EVENT_TRANSFORM_TEST_EXCEPTION, $__specification__currentEvent);
-
-                    $__specification__currentException = $__specification__currentEvent->getAttribute('exception');
-
-                    if ($__specification__currentException instanceof AssertionException) {
-                        
-                        $__specification__msg = $__specification__currentException->getMessage();
-
-                        if (isset($__parametrization__lastVariants)) {
-
-                            $_tbpm_longestLeft = 0;
-                            foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
-                                if (strlen($_tbpm_key) > $_tbpm_longestLeft) {
-                                    $_tbpm_longestLeft = strlen($_tbpm_key);
-                                }
-                            }
-
-                            $__specification__msg .= "\n\n Where: \n---------------------------------------------------\n";
-
-                            foreach($__parametrization__lastValues as $_tbpm_key => $_tbpm_value) {
-                                $__specification__msg .= "  $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
-                            }
-
-                            $__specification__msg .= "\n\n Parametriazation values [step $__parametrization__step]:  \n---------------------------------------------------\n";
-
-                            foreach($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
-                                $__specification__msg .= " $_tbpm_key".str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key))." :  $_tbpm_value\n";
-                            }
-                        }
-
-                        $__specification__varsDeclared = array();
-                        foreach(get_defined_vars() as $varName => $var_value) {
-                            if (strpos($varName, '__specification') === 0 || strpos($varName, '__parametrization') === 0) {
-                                continue;
-                            }
-                            $__specification__varsDeclared[$varName] = $var_value;
-                        }
-                        if (count($__specification__varsDeclared)) {
-                            $__specification__msg .=   "\n\n Declared variables: \n---------------------------------------------------\n";
-                            $longest = 0;
-                            foreach($__specification__varsDeclared as $name => $value) {
-                                if(strlen($name) > $longest) {
-                                    $longest = strlen($name);
-                                }
-                            }
-                            foreach($__specification__varsDeclared as $name => $value) {
-                                $__specification__msg .= " \$$name ";
-                                $__specification__msg .= str_repeat(' ', $longest - strlen($name)) . ' : ';
-
-                                if ($value instanceof \Mockery\MockInterface) {
-                                    /**
-                                     * @var $value \Mockery\MockInterface
-                                     */
-                                    $__specification__msg .= 'Mock for ' . $value->mockery_getName();
-                                }
-                                elseif (is_object($value)) {
-                                    $__specification__msg .= 'instance of ' . get_class($value);
-                                }
-                                else {
-                                    $__specification__msg .= $value;
-                                }
-                                $__specification__msg .= "\n";
-                            }
-                            $__specification__msg .=   "\n---------------------------------------------------\n";
-                        }
-
-//                        if ($__specification__debug_output != '') {
-//                            $msg .= "\n\n Debug output: \n---------------------------------------------------\n";
-//                            $msg .= $__specification__debug_output;
-//                            $msg .= "\n---------------------------------------------------\n";
-//                        }
-
-                        throw new AssertionException($__specification__msg);
-                    }
-
-                    if ($__specification__currentException instanceof \Exception) {
-                        throw $__specification__currentException;
-                    }
-                }
-
-                return $__parametrization__hasMoreVariants;
-            };
-
-            $hasMoreVariants =  $func();
             $stepCounter++;
         }
 
@@ -355,6 +139,231 @@ class Specification {
         return $assertionCount;
     }
 
+    public function executeGeneratedCode(&$__specification__assertCount, $__specification__code)
+    {
+        $__specification__extraVars = $this->getExtraVars();
+        $__specification__eventDispatcher = $this->getEventDispatcher();
+
+        // eval will be executed in it's own scope
+        $func = function() use($__specification__code, &$__specification__assertCount, $__specification__extraVars, $__specification__eventDispatcher)
+        {
+
+            extract($__specification__extraVars);
+
+            $__parametrization__hasMoreVariants = false;
+            $__parametrization__lastVariants = null;
+            $__parametrization__lastValues = null;
+
+            try {
+                eval($__specification__code);
+
+            } catch (\Exception $__specification__currentException) {
+
+                $__specification__currentEvent = new Event();
+                $__specification__currentEvent->setAttribute('exception', $__specification__currentException);
+
+                /**
+                 * @var $__specification__eventDispatcher \Symfony\Component\EventDispatcher\EventDispatcherInterface
+                 */
+                $__specification__eventDispatcher->dispatch(Event::EVENT_TRANSFORM_TEST_EXCEPTION, $__specification__currentEvent);
+
+                $__specification__currentException = $__specification__currentEvent->getAttribute('exception');
+
+                if ($__specification__currentException instanceof AssertionException) {
+
+                    $__specification__msg = $__specification__currentException->getMessage();
+
+                    if (isset($__parametrization__lastVariants)) {
+
+                        $_tbpm_longestLeft = 0;
+                        foreach ($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
+                            if (strlen($_tbpm_key) > $_tbpm_longestLeft) {
+                                $_tbpm_longestLeft = strlen($_tbpm_key);
+                            }
+                        }
+
+                        $__specification__msg .= "\n\n Where: \n---------------------------------------------------\n";
+
+                        foreach ($__parametrization__lastValues as $_tbpm_key => $_tbpm_value) {
+                            $__specification__msg .= "  $_tbpm_key" . str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key)) . " :  $_tbpm_value\n";
+                        }
+
+                        $__specification__msg .= "\n\n Parametriazation values [step $__parametrization__step]:  \n---------------------------------------------------\n";
+
+                        foreach ($__parametrization__lastVariants as $_tbpm_key => $_tbpm_value) {
+                            $__specification__msg .= " $_tbpm_key" . str_repeat(" ", $_tbpm_longestLeft - strlen($_tbpm_key)) . " :  $_tbpm_value\n";
+                        }
+                    }
+
+                    $__specification__varsDeclared = array();
+                    foreach (get_defined_vars() as $varName => $var_value) {
+                        if (strpos($varName, '__specification') === 0 || strpos($varName, '__parametrization') === 0) {
+                            continue;
+                        }
+                        $__specification__varsDeclared[$varName] = $var_value;
+                    }
+                    if (count($__specification__varsDeclared)) {
+                        $__specification__msg .= "\n\n Declared variables: \n---------------------------------------------------\n";
+                        $longest = 0;
+                        foreach ($__specification__varsDeclared as $name => $value) {
+                            if (strlen($name) > $longest) {
+                                $longest = strlen($name);
+                            }
+                        }
+                        foreach ($__specification__varsDeclared as $name => $value) {
+                            $__specification__msg .= " \$$name ";
+                            $__specification__msg .= str_repeat(' ', $longest - strlen($name)) . ' : ';
+
+                            if ($value instanceof \Mockery\MockInterface) {
+                                /**
+                                 * @var $value \Mockery\MockInterface
+                                 */
+                                $__specification__msg .= 'Mock for ' . $value->mockery_getName();
+                            }
+                            elseif (is_object($value)) {
+                                $__specification__msg .= 'instance of ' . get_class($value);
+                            }
+                            else {
+                                $__specification__msg .= $value;
+                            }
+                            $__specification__msg .= "\n";
+                        }
+                        $__specification__msg .= "\n---------------------------------------------------\n";
+                    }
+                    throw new AssertionException($__specification__msg);
+                }
+
+                if ($__specification__currentException instanceof \Exception) {
+                    throw $__specification__currentException;
+                }
+            }
+
+            return $__parametrization__hasMoreVariants;
+        };
+
+        return $func();
+    }
+
+    public function wrapCodeWithNamespaceDeclaration($__specification__code)
+    {
+        return 'namespace ' . $this->getNamespace() . ' { ' . $__specification__code . "\n}";
+    }
+
+    public function namespaceIsNotDefault()
+    {
+        return $this->namespace != '';
+    }
+
+    public function wrapCodeWithUseDeclarationsCode($code)
+    {
+        foreach ($this->useStatements as $alias => $class) {
+            $code = "use $class as $alias;\n" . $code;
+        }
+        return $code;
+    }
+
+    public function haveAnyUseStatementDeclarations()
+    {
+        return count($this->useStatements);
+    }
+
+    public function debuggerHasReturnedSomeNotNullResult($debugResult)
+    {
+        return $debugResult != null;
+    }
+
+    protected function tryToUseDebugger($__specification__code, $stepCounter)
+    {
+        $event = new Event();
+        $event->setAttribute('code', $__specification__code);
+        $event->setAttribute('variant', $stepCounter);
+        $this->getEventDispatcher()->dispatch(Event::EVENT_DEBUG, $event);
+        $debugResult = $event->getAttribute('result');
+        return $debugResult;
+    }
+
+    public function buildCleanupCode()
+    {
+        return $this->attachBlockCode('Cleanup', $this->cleanupBlock->compileCode());
+    }
+
+    public function buildWhenThenPairsCode()
+    {
+        $code = '';
+        foreach ($this->whenThenPairs as $pair) {
+
+            $thenCode = '';
+            if ($pair->getThenBlock()) {
+                $thenCode = $this->attachBlockCode('Then', $pair->getThenBlock()->compileCode());
+
+                $preconditions = $pair->getThenBlock()->getPreConditions();
+                if (count($preconditions)) {
+                    foreach ($preconditions as $precondition) {
+                        $code .= '
+        ' . $precondition . ';';
+                    }
+                    $code .= '
+        if (!isset($__specification__assertCount)) {
+            $__specification__assertCount = 0;
+        }
+        $__specification__assertCount += ' . count($preconditions) . ';';
+                }
+
+                foreach ($this->varDeclarations as $varName => $varType) {
+                    $thenCode .= '
+        try {
+            $' . $varName . '->mockery_verify();
+            $' . $varName . '->mockery_teardown();
+        } catch (\Exception $__specification__e) {
+            $__specification__msg = "Mock \$' . $varName . ' validation exception: " . $__specification__e->getMessage();
+            throw new \PhpSpock\Specification\AssertionException($__specification__msg);
+        }
+                ';
+                }
+            }
+
+            if ($pair->getWhenBlock()) {
+                $code .= $this->attachBlockCode('When', $pair->getWhenBlock()->compileCode());
+            }
+            $code .= $thenCode;
+        }
+        return $code;
+    }
+
+    public function buildParametrizationCode($stepCounter)
+    {
+        return $this->attachBlockCode('Where', $this->whereBlock->compileCode($stepCounter));
+    }
+
+    public function buildSetupCode()
+    {
+        return $this->attachBlockCode('Setup', $this->setupBlock->compileCode());
+    }
+
+    protected function buildMocksDeclaration()
+    {
+        $code = '';
+        if (count($this->varDeclarations)) {
+            $code .= '
+        /**
+         * Mocks
+         */
+         ';
+        }
+        // generate mocks
+        foreach ($this->varDeclarations as $varName => $varType) {
+            $code .= '
+        $' . $varName . ' = \Mockery::mock(\'' . $varType . '\');';
+        }
+        if (count($this->varDeclarations)) {
+            $code .= '
+
+                ';
+            return $code;
+        }
+        return $code;
+    }
+
     public function getExtraVars()
     {
         $event = new Event();
@@ -363,7 +372,7 @@ class Specification {
         return $extraVars;
     }
 
-    public function preprocessCode($code)
+    public function giveEventListenersAChanceToModifyCode($code)
     {
         $event = new Event();
         $event->setAttribute('code', $code);
@@ -477,5 +486,57 @@ class Specification {
     public function getVarDeclarations()
     {
         return $this->varDeclarations;
+    }
+
+    public function setRawBody($rawBody)
+    {
+        $this->rawBody = $rawBody;
+    }
+
+    public function getRawBody()
+    {
+        return $this->rawBody;
+    }
+
+    public function setRawBlocks($rawBlocks)
+    {
+        $this->rawBlocks = $rawBlocks;
+    }
+
+    public function getRawBlocks()
+    {
+        return $this->rawBlocks;
+    }
+
+    /**
+     * @param \PhpSpock\Specification\SimpleBlock $setupBlock
+     */
+    public function setSetupBlock($setupBlock)
+    {
+        $this->setupBlock = $setupBlock;
+    }
+
+    /**
+     * @return \PhpSpock\Specification\SimpleBlock
+     */
+    public function getSetupBlock()
+    {
+        return $this->setupBlock;
+    }
+
+    /**
+     * @param \PhpSpock\Specification\WhereBlock $whereBlock
+     */
+    public function setWhereBlock($whereBlock)
+    {
+        $this->whereBlock = $whereBlock;
+    }
+
+    /**
+     * @return \PhpSpock\Specification\WhereBlock
+     */
+    public function getWhereBlock()
+    {
+        return $this->whereBlock;
     }
 }
