@@ -192,9 +192,9 @@ class Specification {
         try {
             $'.$varName.'->mockery_verify();
             $'.$varName.'->mockery_teardown();
-        } catch (\Exception $e) {
-            $msg = "Mock \$'.$varName.' validation exception: " . $e->getMessage();
-            throw new \PhpSpock\Specification\AssertionException($msg);
+        } catch (\Exception $__specification__e) {
+            $__specification__msg = "Mock \$'.$varName.' validation exception: " . $__specification__e->getMessage();
+            throw new \PhpSpock\Specification\AssertionException($__specification__msg);
         }
                 ';
             }

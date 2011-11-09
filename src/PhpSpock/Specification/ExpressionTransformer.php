@@ -91,25 +91,32 @@ class ExpressionTransformer {
     {
         $retList = array();
 
-        $isClosure = false;
+        $exceptionData = null;
+        $method = 'Return';
         foreach($this->splitArgs($expr) as $argExpr) {
             $argExpr = trim($argExpr);
 
+            if ($method == 'Throw') {
+                throw new \PhpSpock\ParseException("You can not have more than one exception to be thrown.");
+            }
 
             if (preg_match('/^usingClosure\((?P<args>.*)\)$/', $argExpr, $mts)) {
                 $retList[] = $mts['args'];
-                $isClosure = true;
+                $method = 'ReturnUsing';
+            } elseif (preg_match('/^throws\((?P<args>.*)\)$/', $argExpr, $mts)) {
+                $exceptionData = $mts['args'];
+                $method = 'Throw';
             } else {
-                if ($isClosure) {
+                if ($method == 'ReturnUsing') {
                     throw new \PhpSpock\ParseException("You can not mix closures and values in one mock return statement.");
                 }
                 $retList[] = $argExpr;
             }
         }
-        if (!count($retList)) {
+        if ($method != 'Throw' && !count($retList)) {
             return '';
         } else {
-            return '->andReturn'.($isClosure? 'Using':'').'('.implode(', ', $retList).')';
+            return '->and'.$method.'('. ($method != 'Throw' ? implode(', ', $retList) : $exceptionData).')';
         }
     }
 

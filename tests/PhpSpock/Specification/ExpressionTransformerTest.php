@@ -103,6 +103,7 @@ class ExpressionTransformerTest extends \PHPUnit_Framework_TestCase {
             array('1 * $a->getFoo() >> true', $simplePrefix.'->andReturn(true)'. $simpleSuffix ),
             array('1 * $a->getFoo() >> 1,2,3', $simplePrefix.'->andReturn(1, 2, 3)'. $simpleSuffix ),
             array('1 * $a->getFoo() >> usingClosure(function() { return 1; })', $simplePrefix.'->andReturnUsing(function() { return 1; })'. $simpleSuffix ),
+            array('1 * $a->getFoo() >> throws(123, 321)', $simplePrefix.'->andThrow(123, 321)'. $simpleSuffix ),
         );
 
         return array_merge($cardinalityExamples, $argumentExamples);

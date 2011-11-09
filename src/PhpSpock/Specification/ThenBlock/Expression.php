@@ -74,6 +74,9 @@ class Expression {
         }
 
         $code = '
+        if (isset($__specification_Exception) && $__specification_Exception instanceof \Exception) {
+            throw $__specification_Exception;
+        }
         $__specification__expressionResult = '.$code.';';
 
         return $code;
