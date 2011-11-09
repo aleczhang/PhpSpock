@@ -6,6 +6,8 @@
  */
 
 namespace PhpSpock\Specification;
+
+use \PhpSpock\ParseException;
  
 class ExpressionTransformer {
 

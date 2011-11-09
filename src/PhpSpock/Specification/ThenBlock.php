@@ -28,15 +28,25 @@ namespace PhpSpock\Specification;
  
 class ThenBlock {
 
+    /**
+     * @var \PhpSpock\Specification\ThenBlock\Expression[]
+     */
     private $expressions = array();
 
     private $preConditions = array();
 
+    /**
+     * @param $expressions
+     * @return void
+     */
     public function setExpressions($expressions)
     {
         $this->expressions = $expressions;
     }
 
+    /**
+     * @return array|ThenBlock\Expression[]
+     */
     public function getExpressions()
     {
         return $this->expressions;

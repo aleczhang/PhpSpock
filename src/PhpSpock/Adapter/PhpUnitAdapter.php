@@ -37,6 +37,8 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
 
     /**
      * @param $test
+     * @param \PhpSpock\PhpSpock $phpSpock
+     * @return mixed | null
      */
     public function run($test, \PhpSpock\PhpSpock $phpSpock)
     {
@@ -72,6 +74,8 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         } catch (\ReflectionException $e) {
             $test->fail($e->getMessage());
         }
+
+        return false;
     }
 
     public static function runTest(\PHPUnit_Framework_TestCase $test)
@@ -112,25 +116,27 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
                 is_string($test->getExpectedException()) &&
                 $e instanceof $expectedExceptionClass) {
 
-                $expectedException = self::getExpectedExceptionFromAnnotation($test, $methodName);
-                if (is_string($expectedException['message']) &&
-                    !empty($expectedException['message'])) {
-                    $test->assertContains(
-                      $expectedException['message'],
-                      $e->getMessage()
-                    );
+                if (isset($methodName)) {
+                    $expectedException = self::getExpectedExceptionFromAnnotation($test, $methodName);
+                    if (is_string($expectedException['message']) &&
+                        !empty($expectedException['message'])) {
+                        $test->assertContains(
+                          $expectedException['message'],
+                          $e->getMessage()
+                        );
+                    }
+
+                    if (is_int($expectedException['code']) &&
+                        $expectedException['code'] !== 0) {
+                        $test->assertEquals(
+                          $expectedException['code'], $e->getCode()
+                        );
+                    }
+
+                    $test->addToAssertionCount(1);
+
+                    return;
                 }
-
-                if (is_int($expectedException['code']) &&
-                    $expectedException['code'] !== 0) {
-                    $test->assertEquals(
-                      $expectedException['code'], $e->getCode()
-                    );
-                }
-
-                $test->addToAssertionCount(1);
-
-                return;
             } else {
                 throw $e;
             }
@@ -196,6 +202,9 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
 
         $partsToRemove = array();
         foreach ($this->getClass()->getMethods() as $method) {
+            /**
+             * @var $method \ReflectionMethod
+             */
             if (substr($method->getName(), 0, 17) == 'test__spec_debug_') {
                 $partsToRemove[] = array($method->getStartLine() - 2, $method->getEndLine());
             }
@@ -238,7 +247,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         return $code;
     }
 
-    public function generateDebugMethodName($event)
+    public function generateDebugMethodName(\PhpSpock\Event $event)
     {
         $methodName = 'test__spec_debug_' . $this->getMethod()->getName() . '_Variant' . $event->getAttribute('variant');
         return $methodName;
@@ -246,6 +255,9 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
 
     /**
      * @since  Method available since Release 3.4.0
+     * @param $class
+     * @param $methodName
+     * @return \Exception | null
      */
     protected static function getExpectedExceptionFromAnnotation($class, $methodName)
     {

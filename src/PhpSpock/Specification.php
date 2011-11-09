@@ -238,16 +238,12 @@ class Specification {
 
             // eval will be executed in it's own scope
             $func = function() use($__specification__code, &$__specification__assertCount, $__specification__extraVars, $__specification__eventDispatcher) {
-                
+
                 extract($__specification__extraVars);
 
                 $__parametrization__hasMoreVariants = false;
                 $__parametrization__lastVariants = null;
                 $__parametrization__lastValues = null;
-//                $__specification__debug_output = '';
-
-
-//                  var_dump($code);
 
                 try {
                     eval($__specification__code);
@@ -256,7 +252,10 @@ class Specification {
 
                     $__specification__currentEvent = new Event();
                     $__specification__currentEvent->setAttribute('exception', $__specification__currentException);
-                    
+
+                    /**
+                     * @var $__specification__eventDispatcher \Symfony\Component\EventDispatcher\EventDispatcherInterface
+                     */
                     $__specification__eventDispatcher->dispatch(Event::EVENT_TRANSFORM_TEST_EXCEPTION, $__specification__currentEvent);
 
                     $__specification__currentException = $__specification__currentEvent->getAttribute('exception');

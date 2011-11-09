@@ -31,7 +31,7 @@ use \PhpSpock\Specification\WhereBlock\Parameterization;
 class WhereBlock {
 
     /**
-     * @var Parameterization[]
+     * @var \PhpSpock\Specification\WhereBlock\Parameterization[]
      */
     private $parametrizations;
 

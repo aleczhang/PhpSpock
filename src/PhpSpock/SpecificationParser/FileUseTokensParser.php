@@ -55,6 +55,7 @@ class FileUseTokensParser
                 return $namespace;
             }
         }
+        return $namespace;
     }
 
     private function parseUseStatement()
@@ -85,8 +86,13 @@ class FileUseTokensParser
                 }
             }
         }
+
+        return $statements;
     }
 
+    /**
+     * @return mixed
+     */
     private function next()
     {
         while ($token = array_shift($this->tokens)) {
@@ -96,6 +102,7 @@ class FileUseTokensParser
 
             return $token;
         }
+        return null;
     }
 
     private function nextValue()

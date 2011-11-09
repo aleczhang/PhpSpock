@@ -31,6 +31,7 @@ interface Adapter {
     /**
      * @abstract
      * @param $test
+     * @param \PhpSpock\PhpSpock $phpSpock
      * @return void
      */
     public function run($test, PhpSpock $phpSpock);

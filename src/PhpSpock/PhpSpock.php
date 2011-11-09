@@ -52,6 +52,11 @@ class PhpSpock {
         }
     }
 
+    /**
+     * @param Adapter $adapter
+     * @param $test
+     * @return int
+     */
     public function runWithAdapter(Adapter $adapter, $test)
     {
         return $adapter->run($test, $this);
