@@ -224,6 +224,11 @@ class SpecificationParser extends AbstractParser {
 //                        throw new ParseException('Block ' . $suggestedBlockName . ' is already defined!');
 //                    }
 
+                    // expect alias
+                    if ($suggestedBlockName == 'expect') {
+                        $suggestedBlockName = 'then';
+                    }
+
                     if(!in_array($suggestedBlockName, $this->allowedBlocks)) {
                         throw new ParseException('Unknown block found: ' . $suggestedBlockName . '');
                     }

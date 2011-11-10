@@ -197,7 +197,8 @@ class Specification {
 
                     $__specification__varsDeclared = array();
                     foreach (get_defined_vars() as $varName => $var_value) {
-                        if (strpos($varName, '__specification') === 0 || strpos($varName, '__parametrization') === 0) {
+                        if (strpos($varName, '__specification') === 0 || strpos($varName, '__parametrization') === 0
+                            || strpos($varName, '_tbpm_') === 0) {
                             continue;
                         }
                         $__specification__varsDeclared[$varName] = $var_value;

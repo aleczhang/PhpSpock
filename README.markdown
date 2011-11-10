@@ -61,7 +61,14 @@ To run test as a specification, you should mark it with annotation @spec or give
         ...
     }
 
-NB! Spec should be also a valid phpUnit test when using phpUnit adapter.
+NB! @spec annotation is not a replacement for @test, so you still should add @test annotation to your test case or
+to start method name with "test" prefix.
+
+## Shared resources
+
+NB! It is very important, that you declare all resources that you are going to use in test, as public.
+Otherwise your specification will not be able to call these resources, because test will be executed
+in different context.
 
 ## Debugger support with phpUnit
 
@@ -121,7 +128,6 @@ Debug code still will be valid and should run correctly on a second time.
 
 Features to implement:
 
-* Define interactions in then block
 * Make assertionFailure output more descriptive
 
 # Licence

@@ -61,9 +61,9 @@ class Expression {
             $exceptionName = isset($mts[3]) ? $mts[3] : 'Exception';
 
             $code = '
-            $ret = isset($__specification_Exception) && $__specification_Exception instanceof \\'.$exceptionName.';
+            $__specification_ret = isset($__specification_Exception) && $__specification_Exception instanceof \\'.$exceptionName.';
             $__specification_Exception = null;
-            $__specification__expressionResult = $ret;
+            $__specification__expressionResult = $__specification_ret;
             ';
 
             return $code;
@@ -112,4 +112,31 @@ class Expression {
         }
         return trim($newCode);
     }
+
+//    public function splitCode()
+//    {
+//        $code = $this->getCode();
+//        $parts = preg_split('/\s+/', $code);
+//
+//        $pattern = array();
+//        $data = array();
+//        foreach($parts as $index => $part) {
+//
+//            if (preg_match('/[a-zA-Z]+/', $part)) {
+//                $partName = 'exp' . ($index + 1);
+//                if (strpos($part, '->') !== false) {
+//                    $data[$partName] = explode('->', $part);
+//                } else {
+//                    $data[$partName] = $part;
+//                }
+//                $pattern[] = '$' . $partName;
+//            } else {
+//                $pattern[] = $part;
+//            }
+//        }
+//        return array(
+//            'parts' => $data,
+//            'pattern' => implode(' ', $pattern)
+//        );
+//    }
 }

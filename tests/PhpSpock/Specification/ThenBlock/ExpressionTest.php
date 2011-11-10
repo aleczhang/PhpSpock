@@ -35,6 +35,30 @@ class ExpressionTest extends \PHPUnit_Framework_TestCase {
         \Mockery::close();
     }
 
+//    /**
+//     * @test
+//     */
+//    public function splitCodeTest()
+//    {
+//        $exp = new Expression();
+//        $exp->setCode('$foo->bar->baz()');
+//
+//        $parts = $exp->splitCode();
+//
+//        $this->assertEquals(
+//            array(
+//                'parts' => array(
+//                    'exp1' => array(
+//                        '$foo',
+//                        'bar',
+//                        'baz()'
+//                    )
+//                ),
+//                'pattern' => '$exp1'
+//            ),
+//            $parts);
+//    }
+
 
     /**
      * @test

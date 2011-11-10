@@ -154,13 +154,18 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
     public function onBeforeCodeGenerationEvent(\PhpSpock\Event $event)
     {
         $code = $event->getAttribute('code');
-        $code = str_replace('$this->', '$phpunit->', $code);
+        $code = str_replace('$this->', '$__specification__phpunit_test->', $code);
         $event->setAttribute('code', $code);
     }
 
     public function onTransformTestEvent(\PhpSpock\Event $event)
     {
         $exception = $event->getAttribute('exception');
+
+        if ($exception instanceof AssertionException) {
+            $msg = str_replace('$__specification__phpunit_test', '$this', $exception->getMessage());
+            $exception = new AssertionException($msg);
+        }
 
         if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
             $exception = new AssertionException($exception->getMessage());
@@ -171,7 +176,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
 
     public function onCollectExtraVariablesEvent(\PhpSpock\Event $event)
     {
-        $event->setAttribute('phpunit', $this->getTest());
+        $event->setAttribute('__specification__phpunit_test', $this->getTest());
     }
 
     public function onDebugEvent(\PhpSpock\Event $event)
