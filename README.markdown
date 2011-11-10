@@ -162,6 +162,7 @@ The only required block is "then", it also have alias "expect".
 
 So, the minimal specification will look like:
 
+```php
     /**
      * @spec
      * @test
@@ -171,6 +172,7 @@ So, the minimal specification will look like:
         then:
         2 + 2 == 4;
     }
+```
 
 Or even better:
 
