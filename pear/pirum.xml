@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<server>
+<name>ribozz.github.com/PhpSpock/pear</name>
+<summary>PhpSpock PEAR Channel Server</summary>
+<alias>phpspock</alias>
+<url>http://ribozz.github.com/PhpSpock/pear</url>
+</server>
