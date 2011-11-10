@@ -315,7 +315,7 @@ class SpecificationSyntaxTest extends \MyExamples\IntegrationExampleTestCase
         };
 
         expect:
-        preg_match('/^[a-zA-Z]{1,15}$/', $word) == true;
+        preg_match('/[a-zA-Z]{1,15}/', $word) == true;
 
         where:
         $word << $myDataProvider();

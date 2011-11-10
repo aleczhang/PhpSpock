@@ -10,6 +10,61 @@ Useful links:
 * [Github page](https://github.com/ribozz/PhpSpock)
 * [Spock framework](http://code.google.com/p/spock/)
 
+## Implemented features
+
+* Spock syntax
+* Support for "use" class import in tests
+* PhpUnit framework adapter
+* Parametrization
+* Several when->then block pairs
+* Custom error message in assertion
+* Support for run under debugger
+* Spock style mocking (Iteractions)
+
+## Known problems
+
+### Problem with @specDebug
+
+**Description:**
+When you generate debug code with @specDebug, some errors are thrown into console. The same thing when you delete
+this annotation.
+
+**Reason:**
+PhpUnitAdapter changes code of class where the marked test method resist (to insert debug code). And now when
+specification parser tries to get body of some other test in this file using reflection, it fails, beacuse
+reflection does not reflect file changes.
+
+**Solution:**
+If you need to add/remove @specDebug annotation, just execute phpunit command twice gnoring all errors appeared.
+Debug code still will be valid and should run correctly on a second time.
+
+
+## Plans
+
+Features to implement:
+
+* Make assertionFailure output more descriptive
+* Create proper docs with index on github pages
+
+# Licence
+
+Full text of licenses are attached as COPYING and COPYING.LESSER files.
+
+    PhpSpock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PhpSpock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with PhpSpock.  If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2011 Aleksandr Rudakov <ribozz@gmail.com>
+
 ## Installation
 
 For a moment the only way to install PhpSpock is to checkout sourcecode from git and to feet it to
@@ -55,6 +110,7 @@ designed in a way that allows easily integrate it in third party libraries.
 If you conquer any situation when you need some extra-functionality (event, some extra interface method, etc.), feel
 free to fork repository on github, and make pull request to merge your changes into main branch. But keep in mind
 that PhpSpock core should remain unaware about any kind of testing framework and iteract with them using event system.
+
 
 ## User guide
 
@@ -415,6 +471,9 @@ Where block is a special block that contains so called "Parametrizations" it is 
 on different sets of data. It is very like phpUnit "data sets", but better because parametrizations can also
 use variables defined in setup block.
 
+NB! It's important to understand, that test with parametrization will be executed several times from top to bottom
+including setup and cleanup blocks. Only data will be different between executions.
+
 Parametrization has two syntaxes (or notations). One is array style:
 
 ```php
@@ -707,7 +766,105 @@ By the way data provider may be also a public method of test class:
         $word << $this->myDataProvider();
         ...
 ```
+## Testing exception
 
+You can test exception in several ways. The first one is the phpUnit way:
+
+```php
+<?php
+    /**
+     * @spec
+     * @expectedException Exception
+     */
+    public function testIndex()
+    {
+        when:
+        throw new \Exception("test");
+
+        then:
+        $this->fail("Exception should be thrown!");
+    }
+```
+
+Better way is to use thrown() and notThrown() constructions:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function testIndexWithThrown()
+    {
+        when:
+        throw new \Exception("test");
+
+        then:
+        thrown("Exception");
+    }
+```
+
+For now I didn't found the way to tell the IDE that thrown() and notThrown() functions are exist. So, for a moment IDE (at least
+phpStorm) reacts with warning "undefined function" on these methods.
+
+thrown() accepts class name as argument, if you give no argument, 'Exception' is assumed by default.
+
+thrown() will check if exception was thrown in "when" block and fails with assertion error if not:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function testIndexWithThrown3()
+    {
+        when:
+        throw new \RuntimeException("test");
+
+        then:
+        thrown("RuntimeException");
+    }
+```
+
+The output will be:
+
+    There was 1 failure:
+
+    1) MyExamples\ExceptionExampleTest::testIndexWithThrown3
+    Expression thrown("RuntimeException") is evaluated to false.
+
+notThrown() makes test more complete. In any case test will fail if exception occours, but purpose
+of your test will be more clear, if you have notThrown() statement in your "then" block.
+
+More over each specification should contain at least one "then" (or "expect") block and it must not be empty.
+
+thrown() and notThrown() assertions are applyed only to the last "when" block. This allows to do things like:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function testExceptionCombination()
+    {
+        when:
+        1==1;
+
+        then:
+        notThrown("RuntimeException");
+
+        _when:
+        throw new \RuntimeException("test");
+
+        _then:
+        thrown("RuntimeException");
+    }
+
+```
+
+If you have exception occure in your setup block, it's logical that your test will blow up.
 
 ## Shared resources
 
@@ -733,64 +890,3 @@ will clean up your test for you.
 Also @specDebug may be helpfull in understanding internals of phpSpock. For example, if you have some missunderstandable behavior
 of your test and think that PhpSpock is working wrong.
 
-## Examples
-
-One example is in folder "examples". Other examples will be later.
-And something you can see also from PhpSpock tests. Especially take a look at
-PhpSpockTest and SpecificationParserTest.
-
-To execute examples, just run "phpunit" command in PhpSpock folder.
-
-## Implemented features
-
-* Spock syntax
-* Support for "use" class import in tests
-* PhpUnit framework adapter
-* Parametrization
-* Several when->then block pairs
-* Custom error message in assertion
-* Support for run under debugger
-* Spock style mocking (Iteractions)
-
-## Known problems
-
-### Problem with @specDebug
-
-**Description:**
-When you generate debug code with @specDebug, some errors are thrown into console. The same thing when you delete
-this annotation.
-
-**Reason:**
-PhpUnitAdapter changes code of class where the marked test method resist (to insert debug code). And now when
-specification parser tries to get body of some other test in this file using reflection, it fails, beacuse
-reflection does not reflect file changes.
-
-**Solution:**
-If you need to add/remove @specDebug annotation, just execute phpunit command twice gnoring all errors appeared.
-Debug code still will be valid and should run correctly on a second time.
-
-
-## Plans
-
-Features to implement:
-
-* Make assertionFailure output more descriptive
-
-# Licence
-
-Full text of licenses are attached as COPYING and COPYING.LESSER files. 
-
-    PhpSpock is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    PhpSpock is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with PhpSpock.  If not, see <http://www.gnu.org/licenses/>.
-
-Copyright 2011 Aleksandr Rudakov <ribozz@gmail.com>
