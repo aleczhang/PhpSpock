@@ -35,6 +35,9 @@ runTest() method in every your test case where you use specification.
 
 Just override runTest method in your common TestCase or right in phpUnit test:
 
+```php
+<?php
+
     protected function runTest()
     {
         if (\PhpSpock\Adapter\PhpUnitAdapter::isSpecification($this)) {
@@ -43,6 +46,7 @@ Just override runTest method in your common TestCase or right in phpUnit test:
             return parent::runTest();
         }
     }
+```
 
 #### Implementing own test framework adapter
 
@@ -76,6 +80,9 @@ of a feature. This assumption differs from terminology of Speck framework.
 You can add specification taste to any PhpUnit test case (or some other framework if there is appropriate adapter).
 All you need is to override runTest() method in your test case:
 
+```php
+<?php
+
     namespace MyExamples;
 
     use \PhpSpock\Adapter\PhpUnitAdapter as PhpSpock;
@@ -93,6 +100,7 @@ All you need is to override runTest() method in your test case:
 
         ...
     }
+```
 
 This way requires you to override runTest() method in each test class you create, but allows not to depend on extending
 some particular TestCase implementation.
@@ -104,6 +112,9 @@ The other way is to put this method in to your common test case.
 When preparations are done You can write your first specification.
 
 To run test as a specification, you should mark it with annotation @spec or give it a name, that is ending with "Spec":
+
+```php
+<?php
 
     /**
      * @test
@@ -121,6 +132,7 @@ To run test as a specification, you should mark it with annotation @spec or give
     {
         ...
     }
+```
 
 NB! @spec annotation is not a replacement for @test, so you still should add @test annotation to your test case or
 to start method name with "test" prefix.
@@ -131,6 +143,9 @@ Specification is a valid php code, so your IDE will not complain about bad synta
 nice autocomplete for all code you write in your specification.
 
 Specification consits of blocks:
+
+```php
+<?php
 
     /**
      * @spec
@@ -153,6 +168,7 @@ Specification consits of blocks:
         cleanup:
         ...
     }
+```
 
 Each block starts with block label (name of block followed by ':') and followed by a arbitary number of lines of code.
 
@@ -163,6 +179,8 @@ The only required block is "then", it also have alias "expect".
 So, the minimal specification will look like:
 
 ```php
+<?php
+
     /**
      * @spec
      * @test
@@ -176,6 +194,9 @@ So, the minimal specification will look like:
 
 Or even better:
 
+```php
+<?php
+
     /**
      * @spec
      * @test
@@ -185,6 +206,7 @@ Or even better:
         expect:
         2 + 2 == 4;
     }
+```
 
 ### "then" block
 
@@ -196,6 +218,9 @@ Assertion is a piece of code that returns a boolean value.
 NB! It's important that assertion should return exactly boolean result to be assertion.
 
 Examples:
+
+```php
+<?php
 
     /**
      * @spec
@@ -209,6 +234,7 @@ Examples:
         true;            // assertion - true, ignoring
         (bool) (2-2);    // assertion - expression is converted to boolean false, throwing an assertion exception
     }
+```
 
 The one interesting thing in assertion, is that comment located on the same string with assertion will
 bee added to exception message. Output for the last assertion in example will be:
@@ -219,6 +245,7 @@ bee added to exception message. Output for the last assertion in example will be
     Expression (bool) (2-2) is evaluated to false.
 
     assertion - expression is converted to boolean false, throwing an assertion exception
+```
 
 ### "when" block
 
@@ -227,6 +254,9 @@ still better place for actions is "when" block.
 
 "Then" block is usually working in pair with "when" block. When block contains actions and "then" block
 contains assertions of expected result:
+
+```php
+<?php
 
     /**
      * @spec
@@ -240,8 +270,12 @@ contains assertions of expected result:
         then:
         $a == 3;
     }
+```
 
 These block combination is called "when-then" pair. And you even can use several "when-then" pairs:
+
+```php
+<?php
 
     /**
      * @spec
@@ -261,12 +295,16 @@ These block combination is called "when-then" pair. And you even can use several
         then_:
         $a == 7;
     }
+```
 
 But there is a php syntax restrictions we need to take into account: php does not allow several labels
 with the same name in one class method, so we need to add underscore "_" to the end of block name.
 You can add as much underscores to the and of block name as you need. Underscores will be just ignored.
 
 More pairs:
+
+```php
+<?php
 
     /**
      * @spec
@@ -292,10 +330,14 @@ More pairs:
         then__:
         $a == 5;
     }
+```
 
 ### "setup" and "cleanup" blocks
 
 "setup" block is a block that should contain initialization code for your test:
+
+```php
+<?php
 
     /**
      * @spec
@@ -309,8 +351,12 @@ More pairs:
         expect:
         $a > 3;
     }
+```
 
 You also can ommit "setup" block label, if you want:
+
+```php
+<?php
 
     /**
      * @spec
@@ -323,11 +369,15 @@ You also can ommit "setup" block label, if you want:
         expect:
         $a > 3;
     }
+```
 
 In this case parser will assume that setup block is all the code form starting of the method till
 the first labeled block.
 
 "cleanup" block is executed after your test is completed:
+
+```php
+<?php
 
     /**
      * @spec
@@ -354,6 +404,7 @@ the first labeled block.
         cleanup:
         fclose($temp); // this removes the file according to tmpfile() docs
     }
+```
 
 NB! Cleanup block will not be executed if your code throws unexpected exception/fatal error or just
 contains some syntactical errors.
@@ -365,6 +416,9 @@ on different sets of data. It is very like phpUnit "data sets", but better becau
 use variables defined in setup block.
 
 Parametrization has two syntaxes (or notations). One is array style:
+
+```php
+<?php
 
     /**
      * @spec
@@ -382,10 +436,14 @@ Parametrization has two syntaxes (or notations). One is array style:
         where:
         $a << array(1, 2, 3);
     }
+```
 
 Here you say that specification will be executed three times and $a will contain each value from array(1,2,3);
 
 And same table style:
+
+```php
+<?php
 
     /**
      * @spec
@@ -409,35 +467,51 @@ And same table style:
          3  |  4  |  7;
         -3  |  4  |  1;
     }
+```
 
 This is better when you need to assign multiple variables.
 Parser will transform this table into:
 
+```php
+<?php
+
          $a << array(1, 3, 3, -3);
          $b << array(2, 2, 4,  4);
          $c << array(3, 5, 7,  1);
+```
 
 Each table row should contain equal amount of columns with table header (first row) and there should be no empty lines between rows of one table.
 Amount of spaces between values and separators is not important.
 
 You can notice that two last test has doc-block comment with variable declarations:
 
+```php
+<?php
+
     /**
      * @var $a
      * @var $b
      * @var $c
      */
+```
 
 This tells your IDE that these variables will be dinamicly created, and IDE will not complain about undefined variable.
 You can also add type to variable, and get nice autocomplete:
+
+```php
+<?php
 
     /**
      * @var $stack \Example\Stack
      * @var $b
      * @var $c
      */
+```
 
 You can combine Table and Array notation of parametrization in one test:
+
+```php
+<?php
 
     /**
      * @spec
@@ -470,8 +544,12 @@ You can combine Table and Array notation of parametrization in one test:
          2  |  3;
          2  |  5;
     }
+```
 
 And if some parametrization statemets have different amount of values, values will be rolled:
+
+```php
+<?php
 
     /**
      * @spec
@@ -491,16 +569,24 @@ And if some parametrization statemets have different amount of values, values wi
         $a << array(1, 2, 3);
         $b << array(1, 2);
     }
+```
 
 Results in following combinations:
+
+```php
+<?php
 
     $a: 1, $b: 1
     $a: 2, $b: 2
     $a: 3, $b: 1
+```
 
 Cont of iterations will be the ammount of elements in biggest parametrization.
 
 You can also use any variables defined in setup statement:
+
+```php
+<?php
 
     /**
      * @spec
@@ -543,8 +629,12 @@ You can also use any variables defined in setup statement:
         2       | $b + 3;
         101     | 3;
     }
+```
 
 And even use some external method or variable as paramtrization value source:
+
+```php
+<?php
 
     /**
      * @spec
@@ -566,15 +656,20 @@ And even use some external method or variable as paramtrization value source:
         where:
         $word << $myDataProvider();
     }
+```
 
 Here we test that the given text contains only words with atleast one english char.
 
 If there is an assertion error, current parametrization parameters will be also added to error message.
 Let's change the test a bit to see how assertion error look like with parametrization params:
 
+```php
+<?php
+
     ...
     preg_match('/^[a-zA-Z]{1,15}$/', $word) == true;
     ...
+```
 
 Here is output:
 
@@ -604,10 +699,14 @@ We can clearly see that word 'earth,' contains coma on the end and it doies not 
 
 By the way data provider may be also a public method of test class:
 
+```php
+<?php
+
         ...
         where:
         $word << $this->myDataProvider();
         ...
+```
 
 
 ## Shared resources
