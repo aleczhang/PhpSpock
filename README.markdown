@@ -245,7 +245,7 @@ bee added to exception message. Output for the last assertion in example will be
     Expression (bool) (2-2) is evaluated to false.
 
     assertion - expression is converted to boolean false, throwing an assertion exception
-```
+
 
 ### "when" block
 
