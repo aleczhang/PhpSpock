@@ -866,6 +866,160 @@ thrown() and notThrown() assertions are applyed only to the last "when" block. T
 
 If you have exception occure in your setup block, it's logical that your test will blow up.
 
+
+## Mocking and Inteactions
+
+PhpSpock uses Mockery mock framework under the hood, but it's DSL is adopted to meet Spock style.
+
+To create a mock object, you should create a dock block in the beggining of your specification,
+and declare variable. In declaration, the first parametr should be a class or interface name and
+the second is "*Mock*" keyword, that tells parser that variable should be mocked.
+
+This @var style declaration of mocks is good, because IDE will give you an autocomplete for your
+mock. This usually does not occour, when you create mocks with Mockery natively.
+
+Her is an example:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function test1()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+        setup:
+        1 * $a->add(_,_);
+
+        when:
+        $a->add(1,2);
+
+        then:
+        notThrown();
+    }
+```
+Here we define a new mock of type \Example\Calc and declare in setup block, that method "add()" should
+be called once with two arbitary parameters.
+
+Construction "1 * $a->add(_,_);" is called iteraction, and may be inserted in setup block, or in then block.
+
+In setup block you can declare test-wide iteractions, usually these are declarations of retrun values for
+optional methods:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function testSetupBlockInteractions()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+        setup:
+        (0.._) * $a->add(1, 2) >> 3;
+        (0.._) * $a->add(2, 2) >> 4;
+
+        when:
+        $b = $a->add(1,2);
+
+        then:
+        $b == 3;
+    }
+```
+
+Sure some other class will call your mock's methods, but for illustration what is happening, above piece of code is good.
+
+And in then method you usually will usally declare your expectations about count of method calls on mock:
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function test3()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+
+        when:
+        $b = $a->add(1,2);
+
+        then:
+        1 * $a->add(_,_) >> 4;
+        $b == 4;
+    }
+```
+
+Here is the syntax of iteraction declaration:
+
+    {Cardinality} * ${mockVarName}->{mockedMethodName}([{argument declaration}]) [ >> {return value declaration}]
+
+### Cardinality
+
+Cardinality is exact number of calls expected like "1", "2" or 0, or intervals:
+
+    (n.._) * subscriber.receive(event) // at least n times
+
+    (_..n) * subscriber.receive(event) // at most n times
+
+    (m..n) * subscriber.receive(event) // between m and n times
+
+### mockVarName and mockedMethodName
+
+Just a strings.
+
+### Argument declaration
+
+Format is: arg1, arg2, .... argN
+
+Special format is: _*_ which declares that method may be called with arbitary argument count.
+
+Argument is:
+
+ * a constant like: 1, 2, "some string", WHATEVER_CONTANT ... and so on. Compared with "=="
+ * $variable name - will be checked by reference
+ * "_" any value (isuseful for defining argument count: like _,_,_,_)
+ * something([some params]) will be transformed to \Mockery::something(some params) refer to mockery docs [https://github.com/padraic/mockery]
+
+### Return value
+
+ * a constant
+ * usingClosure(function(){}) - closure will get arguments the method has received
+ * throw(ExceptionInstance) - method will throw an exception
+ * a variable
+
+
+### More examples
+
+```php
+<?php
+
+    /**
+     * @spec
+     */
+    public function test9()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+        setup:
+        1 * $a->add(_,_) >> throws('RuntimeException', 'foo');
+
+        when:
+        $b = $a->add(1,2);
+
+        then:
+        thrown('RuntimeException');
+    }
+```
+
 ## Shared resources
 
 NB! It is very important, that you declare all resources that you are going to use in test, as public.

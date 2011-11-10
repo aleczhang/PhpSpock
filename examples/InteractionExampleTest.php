@@ -184,6 +184,43 @@ class InteractionExampleTest extends IntegrationExampleTestCase
         thrown('RuntimeException');
     }
 
+    /**
+     * @spec
+     */
+    public function testSetupBlockInteractions()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+        setup:
+        (0.._) * $a->add(1, 2) >> 3;
+        (0.._) * $a->add(2, 2) >> 4;
+
+        when:
+        $b = $a->add(1,2);
+
+        then:
+        $b == 3;
+    }
+
+
+
+    /**
+     * @spec
+     */
+    public function testThenBlockInteractions()
+    {
+        /**
+         * @var $a \Example\Calc *Mock*
+         */
+        when:
+        $b = $a->add(1,2);
+
+        then:
+        1 * $a->add(1,2) >> 3;
+        $b == 3;
+    }
+
 }
 
 
