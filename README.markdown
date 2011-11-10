@@ -12,9 +12,23 @@ Useful links:
 
 ## Installation
 
+For a moment the only way to install PhpSpock is to checkout sourcecode from git and to feet it to
+some PSR0 compatible autoloader.
+
+You can checkout source code from github: git://github.com/ribozz/PhpSpock.git
+
+Current stable release is: 0.1
+
+So, something like:
+
+git clone git://github.com/ribozz/PhpSpock.git
+git checkout 0.1
+
+### Integration with frameworks
+
 For now, only PhpUnit framework is supported out of the box.
 
-### PhpUnit integration
+#### PhpUnit integration
 
 Integration with phpUnit is optional. The only thing it gives, is that you wouldn'r need anymore to override
 runTest() method in every your test case where you use specification.
@@ -30,7 +44,7 @@ Just override runTest method in your common TestCase or right in phpUnit test:
         }
     }
 
-### Implementing own test framework adapter
+#### Implementing own test framework adapter
 
 You can take a look at PhpUnitAdapter and how it is integrated into PhpSpock classes. PhpSpock is
 designed in a way that allows easily integrate it in third party libraries.
@@ -38,16 +52,57 @@ If you conquer any situation when you need some extra-functionality (event, some
 free to fork repository on github, and make pull request to merge your changes into main branch. But keep in mind
 that PhpSpock core should remain unaware about any kind of testing framework and iteract with them using event system.
 
-## Dictionary
+## User guide
 
-* Specification - test that is written in Specification style.
+### Intro
+
+As you already know PhpSpock is a clone of Spock testing framework, so you can read also SpockBasics document
+ to get more about ideas laying in the basement of both frameworks: [http://code.google.com/p/spock/wiki/SpockBasics].
+
+## Terminology
+
+"Spock lets you write specifications that describe expected features (properties, aspects) exhibited by a system of
+interest. The system of interest could be anything between a single class and a whole application, and is also called
+system under specification (SUS). The description of a feature starts from a specific snapshot of the SUS and its
+collaborators; this snapshot is called the feature's fixture." (c) *SpockBasics*.
 
 ## Writing specification
+
+### Preparations
+
+You can add specification taste to any PhpUnit test case (or some other framework if there is appropriate adapter).
+All you need is to override runTest() method in your test case:
+
+    namespace MyExamples;
+
+    use \PhpSpock\Adapter\PhpUnitAdapter as PhpSpock;
+
+    class WithoutIntegrationTest extends \PHPUnit_Framework_TestCase
+    {
+        protected function runTest()
+        {
+            if (\PhpSpock\Adapter\PhpUnitAdapter::isSpecification($this)) {
+                return \PhpSpock\Adapter\PhpUnitAdapter::runTest($this);
+            } else {
+                return parent::runTest();
+            }
+        }
+
+        ...
+    }
+
+This way requires you to override runTest() method in each test class you create, but allows not to depend on extending
+some particular TestCase implementation.
+
+The other way is to put this method in to your common test case.
+
+### Turn test case method into specification
+
+When preparations are done You can write your first specification.
 
 To run test as a specification, you should mark it with annotation @spec or give it a name, that is ending with "Spec":
 
     /**
-     * @return void
      * @test
      * @spec
      */
@@ -56,13 +111,110 @@ To run test as a specification, you should mark it with annotation @spec or give
         ...
     }
 
-    public function thisIsAlsoSpec()
+    /**
+     * @test
+     */
+    public function thisIsAlsoBecauseItEndsWithSpec()
     {
         ...
     }
 
 NB! @spec annotation is not a replacement for @test, so you still should add @test annotation to your test case or
 to start method name with "test" prefix.
+
+### Specification syntax
+
+Specification is a valid php code, so your IDE will not complain about bad syntax and even more it will give you
+nice autocomplete for all code you write in your specification.
+
+Specification consits of blocks:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function myTest()
+    {
+        setup:
+        ...
+
+        when:
+        ...
+
+        then:
+        ...
+
+        where:
+        ...
+
+        cleanup:
+        ...
+    }
+
+Each block starts with block label (name of block followed by ':') and followed by a arbitary number of lines of code.
+
+NB! You can not use labels and goto operator in your specification code. Or specification parser will complain you about bad syntax.
+
+The only required block is "then", it also have alias "expect".
+
+So, the minimal specification will look like:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function makeSureIAmStillGoodInMathematics()
+    {
+        then:
+        2 + 2 == 4;
+    }
+
+Or even better:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function makeSureIAmStillGoodInMathematicsWithExcept()
+    {
+        expect:
+        2 + 2 == 4;
+    }
+
+### "then" block
+
+Then blcok is a set of expresions that may be just a piece of code or assertion.
+Expressions are separated by ';' char.
+
+Assertion is a piece of code that returns a boolean value.
+
+NB! It's important that assertion should return exactly boolean result to be assertion.
+
+Examples:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function assertionExamples()
+    {
+        expect:
+        2 + 2 == 4;      // assertion - true, ignoring
+        3 - 3;           // not an assertion - ignoring
+        true;            // assertion - true, ignoring
+        (bool) (2-2);    // assertion - expression is converted to boolean false, throwing an assertion exception
+    }
+
+The one interesting thing in assertion, is that comment located on the same string with assertion will
+bee added to exception message. Output for the last assertion in example will be:
+
+    There was 1 failure:
+
+    1) DocExamples\SpecificationSyntaxTest::assertionExamples
+    Expression (bool) (2-2) is evaluated to false.
+
+    assertion - expression is converted to boolean false, throwing an assertion exception
+
 
 ## Shared resources
 
@@ -105,6 +257,7 @@ To execute examples, just run "phpunit" command in PhpSpock folder.
 * Several when->then block pairs
 * Custom error message in assertion
 * Support for run under debugger
+* Spock style mocking (Iteractions)
 
 ## Known problems
 
