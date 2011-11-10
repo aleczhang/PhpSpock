@@ -66,6 +66,9 @@ interest. The system of interest could be anything between a single class and a 
 system under specification (SUS). The description of a feature starts from a specific snapshot of the SUS and its
 collaborators; this snapshot is called the feature's fixture." (c) *SpockBasics*.
 
+In this tutorial I am aplying term "specification" to the feature method. Because feature method is actually, a specification
+of a feature. This assumption differs from terminology of Speck framework.
+
 ## Writing specification
 
 ### Preparations
@@ -214,6 +217,395 @@ bee added to exception message. Output for the last assertion in example will be
     Expression (bool) (2-2) is evaluated to false.
 
     assertion - expression is converted to boolean false, throwing an assertion exception
+
+### "when" block
+
+Despite you can write into "then" block not only assertions, but usual code also (Let's name it "actions"),
+still better place for actions is "when" block.
+
+"Then" block is usually working in pair with "when" block. When block contains actions and "then" block
+contains assertions of expected result:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function whenThenExample()
+    {
+        when:
+        $a = 1 + 2;
+
+        then:
+        $a == 3;
+    }
+
+These block combination is called "when-then" pair. And you even can use several "when-then" pairs:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function whenThenExampleWithSeveralPairs()
+    {
+        when:
+        $a = 1 + 2;
+
+        then:
+        $a == 3;
+
+        when_:
+        $a += 4;
+
+        then_:
+        $a == 7;
+    }
+
+But there is a php syntax restrictions we need to take into account: php does not allow several labels
+with the same name in one class method, so we need to add underscore "_" to the end of block name.
+You can add as much underscores to the and of block name as you need. Underscores will be just ignored.
+
+More pairs:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function whenThenExampleWithMorePairs()
+    {
+        when:
+        $a = 1 + 2;
+
+        then:
+        $a == 3;
+
+        when_:
+        $a += 4;
+
+        then_:
+        $a == 7;
+
+        when__:
+        $a -= 2;
+
+        then__:
+        $a == 5;
+    }
+
+### "setup" and "cleanup" blocks
+
+"setup" block is a block that should contain initialization code for your test:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function setupBlock()
+    {
+        setup:
+        $a = 3 + rand(2, 4);
+
+        expect:
+        $a > 3;
+    }
+
+You also can ommit "setup" block label, if you want:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function setupBlockWithoutLabel()
+    {
+        $a = 3 + rand(2, 4);
+
+        expect:
+        $a > 3;
+    }
+
+In this case parser will assume that setup block is all the code form starting of the method till
+the first labeled block.
+
+"cleanup" block is executed after your test is completed:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function setupBlockWithCleanup()
+    {
+        setup:
+        $temp = tmpfile();
+
+        when:
+        fwrite($temp, "writing to tempfile");
+
+        then:
+        notThrown('Exception');
+
+        when_:
+        fseek($temp, 0);
+        $data = fread($temp, 1024);
+
+        then_:
+        $data == "writing to tempfile";
+
+        cleanup:
+        fclose($temp); // this removes the file according to tmpfile() docs
+    }
+
+NB! Cleanup block will not be executed if your code throws unexpected exception/fatal error or just
+contains some syntactical errors.
+
+### "where" block
+
+Where block is a special block that contains so called "Parametrizations" it is a way to execute one specifiaction
+on different sets of data. It is very like phpUnit "data sets", but better because parametrizations can also
+use variables defined in setup block.
+
+Parametrization has two syntaxes (or notations). One is array style:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationArrayNotation()
+    {
+        /**
+         * @var $a
+         */
+
+        expect:
+        $a + 2 > 0;
+
+        where:
+        $a << array(1, 2, 3);
+    }
+
+Here you say that specification will be executed three times and $a will contain each value from array(1,2,3);
+
+And same table style:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationTableNotation()
+    {
+        /**
+         * @var $a
+         * @var $b
+         * @var $c
+         */
+
+        expect:
+        $a + $b == $c;
+
+        where:
+        $a  | $b  | $c;
+         1  |  2  |  3;
+         3  |  2  |  5;
+         3  |  4  |  7;
+        -3  |  4  |  1;
+    }
+
+This is better when you need to assign multiple variables.
+Parser will transform this table into:
+
+         $a << array(1, 3, 3, -3);
+         $b << array(2, 2, 4,  4);
+         $c << array(3, 5, 7,  1);
+
+Each table row should contain equal amount of columns with table header (first row) and there should be no empty lines between rows of one table.
+Amount of spaces between values and separators is not important.
+
+You can notice that two last test has doc-block comment with variable declarations:
+
+    /**
+     * @var $a
+     * @var $b
+     * @var $c
+     */
+
+This tells your IDE that these variables will be dinamicly created, and IDE will not complain about undefined variable.
+You can also add type to variable, and get nice autocomplete:
+
+    /**
+     * @var $stack \Example\Stack
+     * @var $b
+     * @var $c
+     */
+
+You can combine Table and Array notation of parametrization in one test:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationMixedNotation()
+    {
+        /**
+         * @var $a
+         * @var $b
+         * @var $c
+         * @var $d
+         * @var $e
+         * @var $f
+         */
+
+        expect:
+        $a + $b + $c + $d + $e + $f > 0;
+
+        where:
+        $a  | $b  | $c;
+         1  |  2  |  3;
+         3  |  2  |  5;
+         3  |  4  |  7;
+        -3  |  4  |  1;
+
+        $d << array(1, 2, 3);
+
+        $e  | $f;
+         2  |  3;
+         2  |  5;
+    }
+
+And if some parametrization statemets have different amount of values, values will be rolled:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationValueRolling()
+    {
+        /**
+         * @var $a
+         * @var $b
+         */
+
+        expect:
+        $a + $b > 0;
+
+        where:
+        $a << array(1, 2, 3);
+        $b << array(1, 2);
+    }
+
+Results in following combinations:
+
+    $a: 1, $b: 1
+    $a: 2, $b: 2
+    $a: 3, $b: 1
+
+Cont of iterations will be the ammount of elements in biggest parametrization.
+
+You can also use any variables defined in setup statement:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationVariablesFromSetup()
+    {
+        /**
+         * @var $a
+         */
+        setup:
+        $b = 123;
+
+        expect:
+        $a + 1  > 100;
+
+        where:
+        $a << array($b + 1, $b + 3, 101);
+    }
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationVariablesFromSetupInTable()
+    {
+        /**
+         * @var $a
+         * @var $c
+         */
+        setup:
+        $b = 123;
+
+        expect:
+        $a + $c + 1  > 100;
+
+        where:
+        $a      | $c;
+        $b + 1  | 1 ;
+        2       | $b + 3;
+        101     | 3;
+    }
+
+And even use some external method or variable as paramtrization value source:
+
+    /**
+     * @spec
+     * @test
+     */
+    public function parametrizationWithExternalValueSource()
+    {
+        /**
+         * @var $word
+         */
+        setup:
+        $myDataProvider = function() {
+            return explode(' ', 'When in the Course of human events it becomes necessary for one people to dissolve the political bands which have connected them with another and to assume among the powers of the earth, the separate and equal station to which the Laws of Nature and of Nature\'s God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation.');
+        };
+
+        expect:
+        preg_match('/[a-zA-Z]{1,15}/', $word) == true;
+
+        where:
+        $word << $myDataProvider();
+    }
+
+Here we test that the given text contains only words with atleast one english char.
+
+If there is an assertion error, current parametrization parameters will be also added to error message.
+Let's change the test a bit to see how assertion error look like with parametrization params:
+
+    ...
+    preg_match('/^[a-zA-Z]{1,15}$/', $word) == true;
+    ...
+
+Here is output:
+
+    There was 1 failure:
+
+    1) DocExamples\SpecificationSyntaxTest::parametrizationWithExternalValueSource
+    Expression preg_match(\'/^[a-zA-Z]{1,15}$/\', $word) == true is evaluated to false.
+
+     Where:
+    ---------------------------------------------------
+      $word :  'earth,'
+
+
+     Parametriazation values [step 32]:
+    ---------------------------------------------------
+     $word :  element[32] of array: $myDataProvider()
+
+
+     Declared variables:
+    ---------------------------------------------------
+     $myDataProvider  : instance of Closure
+     $word            : earth,
+
+    ---------------------------------------------------
+
+We can clearly see that word 'earth,' contains coma on the end and it doies not pass the regexp.
+
+By the way data provider may be also a public method of test class:
+
+        ...
+        where:
+        $word << $this->myDataProvider();
+        ...
 
 
 ## Shared resources
