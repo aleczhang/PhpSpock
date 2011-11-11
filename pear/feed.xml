@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://ribozz.github.com/PhpSpock/pear</id>
-    <updated>2011-11-11T10:31:06+02:00</updated>
+    <updated>2011-11-11T10:52:09+02:00</updated>
     <title>PhpSpock PEAR Channel Server Latest Releases</title>
     <link href="http://ribozz.github.com/PhpSpock/pear/feed.xml" rel="self" />
     <author>
@@ -15,7 +15,7 @@
         <author>
             <name>ribozz</name>
         </author>
-        <updated>2011-11-11T08:28:16+02:00</updated>
+        <updated>2011-11-11T08:51:39+02:00</updated>
         <content>
             
 -
