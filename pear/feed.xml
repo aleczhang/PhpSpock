@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://ribozz.github.com/PhpSpock/pear</id>
-    <updated>2011-11-10T16:41:59+02:00</updated>
+    <updated>2011-11-11T09:44:24+02:00</updated>
     <title>PhpSpock PEAR Channel Server Latest Releases</title>
     <link href="http://ribozz.github.com/PhpSpock/pear/feed.xml" rel="self" />
     <author>
         <name>http://ribozz.github.com/PhpSpock/pear</name>
     </author>
 
-
+    <entry>
+        <title>PhpSpock 0.1.0 (beta)</title>
+        <link href="http://ribozz.github.com/PhpSpock/pear/get/PhpSpock-0.1.0.tgz" />
+        <id>http://ribozz.github.com/PhpSpock/pear/get/PhpSpock-0.1.0.tgz</id>
+        <author>
+            <name>ribozz</name>
+        </author>
+        <updated>2011-11-11T07:34:49+02:00</updated>
+        <content>
+            
+-
+ 
+        </content>
+    </entry>
 </feed>
