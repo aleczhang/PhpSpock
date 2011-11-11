@@ -5,7 +5,7 @@
             <n>PhpSpock</n>
             <c>ribozz.github.com/PhpSpock/pear</c>
             <ca xlink:href="/rest/c/Default">Default</ca>
-            <l>MIT</l>
+            <l>LGPL</l>
             <s>Implementation of Spock testing framework in php.</s>
             <d>PhpSpock is a php implementation of Spock testing framework.
         Syntax of tests is replicated as much as php language syntax permits.

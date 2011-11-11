@@ -4,14 +4,14 @@
     <c>ribozz.github.com/PhpSpock/pear</c>
     <v>0.1.0</v>
     <st>beta</st>
-    <l>MIT</l>
+    <l>LGPL</l>
     <m>ribozz</m>
     <s>Implementation of Spock testing framework in php.</s>
     <d>PhpSpock is a php implementation of Spock testing framework.
         Syntax of tests is replicated as much as php language syntax permits.
         PhpSpock is standalone library, but is designed to be used in partnership
         with other testings framework like PhpUnit.</d>
-    <da>2011-11-11 07:34:49</da>
+    <da>2011-11-11 07:47:56</da>
     <n>
 -
  </n>
