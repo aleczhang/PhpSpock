@@ -24,7 +24,7 @@
 
         <deps>
             <v>0.1.0</v>
-            <d>a:1:{s:8:"required";a:3:{s:3:"php";a:1:{s:3:"min";s:5:"5.3.0";}s:13:"pearinstaller";a:1:{s:3:"min";s:10:"1.4.0dev13";}s:7:"package";a:2:{i:0;a:3:{s:4:"name";s:15:"EventDispatcher";s:7:"channel";s:16:"pear.symfony.com";s:3:"min";s:5:"2.0.5";}i:1;a:3:{s:4:"name";s:7:"Mockery";s:7:"channel";s:34:"http://pear.survivethedeepend.com/";s:3:"min";s:5:"0.7.1";}}}}</d>
+            <d>a:1:{s:8:"required";a:2:{s:3:"php";a:1:{s:3:"min";s:5:"5.3.0";}s:13:"pearinstaller";a:1:{s:3:"min";s:10:"1.4.0dev13";}}}</d>
         </deps>
 
     </pi>

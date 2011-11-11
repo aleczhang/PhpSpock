@@ -14,7 +14,7 @@
   <active>yes</active>
  </lead>
  <date>2011-11-11</date>
- <time>08:04:47</time>
+ <time>08:28:16</time>
  <version>
   <release>0.1.0</release>
   <api>0.1.0</api>
@@ -62,16 +62,6 @@
    <pearinstaller>
     <min>1.4.0dev13</min>
    </pearinstaller>
-   <package>
-    <name>EventDispatcher</name>
-    <channel>pear.symfony.com</channel>
-    <min>2.0.5</min>
-   </package>
-   <package>
-    <name>Mockery</name>
-    <channel>http://pear.survivethedeepend.com/</channel>
-    <min>0.7.1</min>
-   </package>
   </required>
  </dependencies>
  <phprelease />
