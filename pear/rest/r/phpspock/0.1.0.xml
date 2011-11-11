@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<r xmlns="http://pear.php.net/dtd/rest.release" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://pear.php.net/dtd/rest.release http://pear.php.net/dtd/rest.release.xsd">
+    <p xlink:href="/rest/p/phpspock">PhpSpock</p>
+    <c>ribozz.github.com/PhpSpock/pear</c>
+    <v>0.1.0</v>
+    <st>beta</st>
+    <l>LGPL</l>
+    <m>ribozz</m>
+    <s>Implementation of Spock testing framework in php.</s>
+    <d>PhpSpock is a php implementation of Spock testing framework.
+        Syntax of tests is replicated as much as php language syntax permits.
+        PhpSpock is standalone library, but is designed to be used in partnership
+        with other testings framework like PhpUnit.</d>
+    <da>2011-11-11 08:04:47</da>
+    <n>
+-
+ </n>
+    <f>15001</f>
+    <g>http://ribozz.github.com/PhpSpock/pear/get/PhpSpock-0.1.0</g>
+    <x xlink:href="package.0.1.0.xml"/>
+</r>

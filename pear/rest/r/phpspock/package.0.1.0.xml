@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0     http://pear.php.net/dtd/tasks-1.0.xsd     http://pear.php.net/dtd/package-2.0     http://pear.php.net/dtd/package-2.0.xsd">
+ <name>PhpSpock</name>
+ <channel>ribozz.github.com/PhpSpock/pear</channel>
+ <summary>Implementation of Spock testing framework in php.</summary>
+ <description>PhpSpock is a php implementation of Spock testing framework.
+        Syntax of tests is replicated as much as php language syntax permits.
+        PhpSpock is standalone library, but is designed to be used in partnership
+        with other testings framework like PhpUnit.</description>
+ <lead>
+  <name>Aleksandr Rudakov</name>
+  <user>ribozz</user>
+  <email>ribozz@gmail.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2011-11-11</date>
+ <time>08:04:47</time>
+ <version>
+  <release>0.1.0</release>
+  <api>0.1.0</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.gnu.org/licenses/lgpl.html">LGPL</license>
+ <notes>
+-
+ </notes>
+ <contents>
+  <dir baseinstalldir="/" name="/">
+   <file baseinstalldir="/" md5sum="ad60aecb65b22296c3774c4329634d1b" name="PhpSpock/Adapter.php" role="php" />
+   <file baseinstalldir="/" md5sum="9c07d2287062f9f4666b3deb6e1ef7ce" name="PhpSpock/Event.php" role="php" />
+   <file baseinstalldir="/" md5sum="33b05f240d5741ac4ab554a3fc62d92e" name="PhpSpock/ParseException.php" role="php" />
+   <file baseinstalldir="/" md5sum="73fb85abcbfb6444af7a71ac4c0d80bb" name="PhpSpock/PhpSpock.php" role="php" />
+   <file baseinstalldir="/" md5sum="797b0144c3b082ece46fafb9f114bd65" name="PhpSpock/Specification.php" role="php" />
+   <file baseinstalldir="/" md5sum="4d32d9fd8639733da7f4babd25445ed5" name="PhpSpock/SpecificationParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="f071d2746ff55dc8b6edaaa867f0095c" name="PhpSpock/TestExecutionException.php" role="php" />
+   <file baseinstalldir="/" md5sum="6918500664597b4615f457502097e16e" name="PhpSpock/Adapter/PhpUnitAdapter.php" role="php" />
+   <file baseinstalldir="/" md5sum="d176a3fca7b100ee64e76c54faecec74" name="PhpSpock/Specification/AssertionException.php" role="php" />
+   <file baseinstalldir="/" md5sum="d5ddf90e94f9c9b54ba25de160f41345" name="PhpSpock/Specification/ExpressionTransformer.php" role="php" />
+   <file baseinstalldir="/" md5sum="b0bec8627e3a4e3ddc8a166717e0868c" name="PhpSpock/Specification/SetupBlock.php" role="php" />
+   <file baseinstalldir="/" md5sum="04164068032a9170e5db6c1d0b274f55" name="PhpSpock/Specification/SimpleBlock.php" role="php" />
+   <file baseinstalldir="/" md5sum="946adf3411f4a79ac9efc8c9b86d17d0" name="PhpSpock/Specification/ThenBlock.php" role="php" />
+   <file baseinstalldir="/" md5sum="381e507e6f210a593985e52b73d7cdf3" name="PhpSpock/Specification/WhenThenPair.php" role="php" />
+   <file baseinstalldir="/" md5sum="a5a5b289243719b09bf3a3ca0f2840f8" name="PhpSpock/Specification/WhereBlock.php" role="php" />
+   <file baseinstalldir="/" md5sum="840b96d8740544d97a4efdfd955eb438" name="PhpSpock/Specification/ThenBlock/Expression.php" role="php" />
+   <file baseinstalldir="/" md5sum="33cb3c9155cbd8b9952150fd348bdb3e" name="PhpSpock/Specification/WhereBlock/Parameterization.php" role="php" />
+   <file baseinstalldir="/" md5sum="7146b09c3757e1dd4a195b8698d6cbb7" name="PhpSpock/SpecificationParser/AbstractParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="fc737da1ae446dba7f668f7eee742719" name="PhpSpock/SpecificationParser/FileUseTokensParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="ab0807763c5d3ab2ec62d5d76c69a25e" name="PhpSpock/SpecificationParser/SetupBlockParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="52e6fb593516ee8c7b51ec7c7a3cab12" name="PhpSpock/SpecificationParser/SimpleBlockParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="08ee21c2b1556ab920d13661851e0d08" name="PhpSpock/SpecificationParser/ThenBlockParser.php" role="php" />
+   <file baseinstalldir="/" md5sum="710ca46e39525d485407fc14fdee66a7" name="PhpSpock/SpecificationParser/WhereBlockParser.php" role="php" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0dev13</min>
+   </pearinstaller>
+   <package>
+    <name>EventDispatcher</name>
+    <channel>pear.symfony.com</channel>
+    <min>2.0.5</min>
+   </package>
+   <package>
+    <name>Mockery</name>
+    <channel>http://pear.survivethedeepend.com/</channel>
+    <min>0.7.1</min>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease />
+</package>
