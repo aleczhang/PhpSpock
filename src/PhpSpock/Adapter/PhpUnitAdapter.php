@@ -29,6 +29,9 @@ use PhpSpock\Specification\AssertionException;
  
 class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispatcher\EventSubscriberInterface {
 
+    /**
+     * @var \PHPUnit_Framework_TestCase
+     */
     private $test;
     private $class;
     private $method;
@@ -179,6 +182,15 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         $event->setAttribute('__specification__phpunit_test', $this->getTest());
     }
 
+    public function onModifyAssertCount(\PhpSpock\Event $event)
+    {
+        $class = get_class($this->test); //var_dump();
+        
+        $event->setAttribute('count',
+            $event->getAttribute('count') + $class::getCount()
+        );
+    }
+
     public function onDebugEvent(\PhpSpock\Event $event)
     {
         if(preg_match('/\s+@specDebug\s+/', $this->getMethod()->getDocComment())) {
@@ -303,6 +315,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
             \PhpSpock\Event::EVENT_BEFORE_CODE_GENERATION   => 'onBeforeCodeGenerationEvent',
             \PhpSpock\Event::EVENT_COLLECT_EXTRA_VARIABLES  => 'onCollectExtraVariablesEvent',
             \PhpSpock\Event::EVENT_TRANSFORM_TEST_EXCEPTION => 'onTransformTestEvent',
+            \PhpSpock\Event::EVENT_MODIFY_ASSERTION_COUNT   => 'onModifyAssertCount',
             \PhpSpock\Event::EVENT_DEBUG                    => 'onDebugEvent'
         );
     }

@@ -55,16 +55,16 @@ class ThenBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\ThenBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\ThenBlock', $result);
 
         $expressions = $result->getExpressions();
 
         $this->assertEquals(2, count($expressions));
 
-        $this->assertType('PhpSpock\Specification\ThenBlock\Expression', $expressions[0]);
+        $this->assertInstanceOf('PhpSpock\Specification\ThenBlock\Expression', $expressions[0]);
         $this->assertEquals('1 * $service->call()', $expressions[0]->getCode());
 
-        $this->assertType('PhpSpock\Specification\ThenBlock\Expression', $expressions[1]);
+        $this->assertInstanceOf('PhpSpock\Specification\ThenBlock\Expression', $expressions[1]);
         $this->assertEquals('$test == 123', $expressions[1]->getCode());
         $this->assertEquals('hoho', $expressions[1]->getComment());
     }

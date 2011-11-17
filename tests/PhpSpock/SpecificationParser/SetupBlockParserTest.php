@@ -55,7 +55,7 @@ class SetupBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\SetupBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\SetupBlock', $result);
 
         $expressions = $result->getExpressions();
 

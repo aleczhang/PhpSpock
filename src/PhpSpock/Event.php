@@ -49,6 +49,8 @@ class Event extends \Symfony\Component\EventDispatcher\Event {
 
     const EVENT_DEBUG = 'event_debug';
 
+    const EVENT_MODIFY_ASSERTION_COUNT = 'event_modify_assertion_count';
+
     
 
     private $attributes = array();

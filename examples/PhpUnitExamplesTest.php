@@ -19,45 +19,25 @@
  *
  **/
 
-/**
- * Date: 11/3/11
- * Time: 1:29 PM
- * @author Aleksandr Rudakov <ribozz@gmail.com>
- */
+namespace MyExamples;
 
-namespace PhpSpock\SpecificationParser;
- 
-class SimpleBlockParserTest extends \PHPUnit_Framework_TestCase {
+use \Example\Calc;
 
+class PhpUnitExamplesTest extends IntegrationExampleTestCase
+{
     /**
-     * @var \PhpSpock\SpecificationParser\ThenBlockParser
+     * @spec
+     * @group pu-assert
      */
-    protected $parser;
-
-    protected function setUp()
+    public function test1()
     {
-        parent::setUp();
+        $service = new Calc();
+        $calc = $service;
 
-        $this->parser = new SimpleBlockParser();
+        expect:
+        $this->assertSame($service, $calc);
     }
 
-    protected function tearDown()
-    {
-        parent::tearDown();
-    }
-
-    /**
-     * @test
-     */
-    public function parseSeveralLines()
-    {
-        $code = '1 * $service->call();
-                $test == 123;';
-
-        $result = $this->parser->parse($code);
-
-        $this->assertInstanceOf('PhpSpock\Specification\SimpleBlock', $result);
-
-        $this->assertEquals($code, $result->getCode());
-    }
 }
+
+

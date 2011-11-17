@@ -87,7 +87,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($spec);
 
-        $this->assertType('PhpSpock\Specification', $result);
+        $this->assertInstanceOf('PhpSpock\Specification', $result);
 
         $this->assertEquals('/**
              * @var $sym *Mock*
@@ -153,21 +153,21 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
             \'4\' | \'1234\';', $blocks[6]['code']);
         
 
-        $this->assertType('PhpSpock\Specification\SetupBlock', $result->getSetupBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\SetupBlock', $result->getSetupBlock());
 
         $whenThenPairs = $result->getWhenThenPairs();
         $this->assertTrue(is_array($whenThenPairs));
         $this->assertEquals(2, count($whenThenPairs));
 
-        $this->assertType('PhpSpock\Specification\SimpleBlock', $whenThenPairs[0]->getWhenBlock());
-        $this->assertType('PhpSpock\Specification\ThenBlock', $whenThenPairs[0]->getThenBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\SimpleBlock', $whenThenPairs[0]->getWhenBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\ThenBlock', $whenThenPairs[0]->getThenBlock());
 
-        $this->assertType('PhpSpock\Specification\SimpleBlock', $whenThenPairs[1]->getWhenBlock());
-        $this->assertType('PhpSpock\Specification\ThenBlock', $whenThenPairs[1]->getThenBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\SimpleBlock', $whenThenPairs[1]->getWhenBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\ThenBlock', $whenThenPairs[1]->getThenBlock());
 
-        $this->assertType('PhpSpock\Specification\SimpleBlock', $result->getCleanupBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\SimpleBlock', $result->getCleanupBlock());
 
-        $this->assertType('PhpSpock\Specification\WhereBlock', $result->getWhereBlock());
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock', $result->getWhereBlock());
     }
 
     /**
@@ -192,7 +192,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($spec);
 
-        $this->assertType('PhpSpock\Specification', $result);
+        $this->assertInstanceOf('PhpSpock\Specification', $result);
 
         $this->assertEquals('/**
              * @var $sym
@@ -237,7 +237,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($spec);
 
-        $this->assertType('PhpSpock\Specification', $result);
+        $this->assertInstanceOf('PhpSpock\Specification', $result);
 
         $this->assertEquals('/**
              * @var $sym
@@ -296,7 +296,7 @@ class SpecificationParserTest extends \PHPUnit_Framework_TestCase {
          };
 
         $result = $this->parser->parse($spec);
-        $this->assertType('PhpSpock\Specification', $result);
+        $this->assertInstanceOf('PhpSpock\Specification', $result);
 
         $this->assertEquals('/**
              * @var $a
