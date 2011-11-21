@@ -170,9 +170,9 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
             $exception = new AssertionException($msg);
         }
 
-        if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
-            $exception = new AssertionException($exception->getMessage());
-        }
+//        if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
+//            $exception = new AssertionException($exception->getMessage());
+//        }
 
         $event->setAttribute('exception', $exception);
     }

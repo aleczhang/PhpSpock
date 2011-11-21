@@ -226,6 +226,9 @@ class Specification {
                             elseif (is_object($value)) {
                                 $__specification__msg .= 'instance of ' . get_class($value);
                             }
+                            elseif (is_array($value)) {
+                               $__specification__msg .= 'Array with size ' . count($value);
+                            }
                             else {
                                 $__specification__msg .= $value;
                             }
