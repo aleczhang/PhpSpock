@@ -21,6 +21,16 @@ Useful links:
 * Support for run under debugger
 * Spock style mocking (Iteractions)
 
+## Changelog
+
+### 0.1.1
+
+- Several bugfixes
+
+### 0.1.2
+
+- Simplified cardinality syntax. Now you can ommit "(" and ")" and use +1, -1, +0 instead of constructions like (_..4)
+
 ## Known problems
 
 ### Problem with @specDebug
@@ -970,6 +980,18 @@ Cardinality is exact number of calls expected like "1", "2" or 0, or intervals:
     (_..n) * subscriber.receive(event) // at most n times
 
     (m..n) * subscriber.receive(event) // between m and n times
+
+An alternative syntax for intervals:
+
+    +n * subscriber.receive(event) // at least n times
+
+    -n * subscriber.receive(event) // at most n times
+
+    m..n * subscriber.receive(event) // between m and n times
+
+For example:
+
+    +0 * $a->add(_,_) >> throws('RuntimeException', 'foo');
 
 ### mockVarName and mockedMethodName
 

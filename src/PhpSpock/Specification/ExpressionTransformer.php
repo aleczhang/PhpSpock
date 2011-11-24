@@ -43,7 +43,7 @@ class ExpressionTransformer {
                 \s*
 
                 (?P<cardinality>
-                    \d+ | \(\d*_?\s*\.\.\s*\d*_?\)
+                    [\+-]?\d+ | \(?\d*_?\s*\.\.\s*\d*_?\)?
                 )
 
                 \s+\*\s+
@@ -77,34 +77,41 @@ class ExpressionTransformer {
 
     private function transformMockCardinality($expr)
     {
-        if (is_numeric($expr)) {
-            if ($expr == '0') {
+        if (preg_match('/^\d+$/', $expr)) {
+            if ($expr === '0') {
                 return '->never()';
             }
-            if ($expr == '1') {
+            if ($expr === '1') {
                 return '->once()';
             }
-            if ($expr == '2') {
+            if ($expr === '2') {
                 return '->twice()';
             }
-
             return '->times('.$expr.')';
-        } else {
-            if (preg_match('/^\(0\s*\.\.\s*_\)$/', $expr, $mts)) {
-                return '->zeroOrMoreTimes()';
-            }
-            if (preg_match('/^\((?P<min>\d+)\s*\.\.\s*_\)$/', $expr, $mts)) {
-                return '->atLeast()->times('.$mts['min'].')';
-            }
-            if (preg_match('/^\(_\s*\.\.\s*(?P<max>\d+)\)$/', $expr, $mts)) {
-                return '->atMost()->times('.$mts['max'].')';
-            }
-            if (preg_match('/^\((?P<min>\d+)\s*\.\.\s*(?P<max>\d+)\)$/', $expr, $mts)) {
-                return '->between('.$mts['min'].', '.$mts['max'].')';
-            }
-
-            throw new ParseException("Can not parse cardinality for mock object: " . $expr);
         }
+        if ($expr === '+0') {
+            return '->zeroOrMoreTimes()';
+        }
+        if (preg_match('/^\(?0\s*\.\.\s*_\)?$/', $expr, $mts)) {
+            return '->zeroOrMoreTimes()';
+        }
+        if (preg_match('/^\(?(?P<min>\d+)\s*\.\.\s*_\)?$/', $expr, $mts)) {
+            return '->atLeast()->times('.$mts['min'].')';
+        }
+        if (preg_match('/^\+(?P<min>\d+)$/', $expr, $mts)) {
+            return '->atLeast()->times('.$mts['min'].')';
+        }
+        if (preg_match('/^-(?P<min>\d+)$/', $expr, $mts)) {
+            return '->atMost()->times('.$mts['min'].')';
+        }
+        if (preg_match('/^\(?_\s*\.\.\s*(?P<max>\d+)\)?$/', $expr, $mts)) {
+            return '->atMost()->times('.$mts['max'].')';
+        }
+        if (preg_match('/^\(?(?P<min>\d+)\s*\.\.\s*(?P<max>\d+)\)?$/', $expr, $mts)) {
+            return '->between('.$mts['min'].', '.$mts['max'].')';
+        }
+
+        throw new ParseException("Can not parse cardinality for mock object: " . $expr);
 
     }
 
