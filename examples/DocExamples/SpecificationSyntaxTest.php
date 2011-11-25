@@ -48,7 +48,7 @@ class SpecificationSyntaxTest extends \MyExamples\IntegrationExampleTestCase
      * @test
      *
      * remove this if you want to see test fail:
-     * @expectedException Exception
+     * @expectedException PHPUnit_Framework_ExpectationFailedException
      */
     public function assertionExamples()
     {

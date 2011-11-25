@@ -69,6 +69,12 @@ class ExpressionTransformerTest extends \PHPUnit_Framework_TestCase {
             array('0 * $a->getFoo()', $simplePrefix.'->never()'. $simpleSuffix ),
             array('(0.._) * $a->getFoo()', $simplePrefix.'->zeroOrMoreTimes()'. $simpleSuffix ),
             array('1 * $a->getFoo() >> true', $simplePrefix .'->once()->andReturn(true)'. $simpleSuffix ),
+
+            // alternative syntax
+            array('+1 * $a->getFoo()', $simplePrefix.'->atLeast()->times(1)'. $simpleSuffix ),
+            array('-2 * $a->getFoo()', $simplePrefix.'->atMost()->times(2)'. $simpleSuffix ),
+            array('2..5 * $a->getFoo()', $simplePrefix.'->between(2, 5)'. $simpleSuffix ),
+            array('+0 * $a->getFoo()', $simplePrefix.'->zeroOrMoreTimes()'. $simpleSuffix ),
         );
 
         $argPrefix = '$a->shouldReceive("getFoo")';
@@ -98,13 +104,6 @@ class ExpressionTransformerTest extends \PHPUnit_Framework_TestCase {
 
         $simplePrefix = '$a->shouldReceive("getFoo")->withNoArgs()->once()';
         $simpleSuffix  = '';
-
-        $cardinalityExamples = array(
-            array('1 * $a->getFoo() >> true', $simplePrefix.'->andReturn(true)'. $simpleSuffix ),
-            array('1 * $a->getFoo() >> 1,2,3', $simplePrefix.'->andReturn(1, 2, 3)'. $simpleSuffix ),
-            array('1 * $a->getFoo() >> usingClosure(function() { return 1; })', $simplePrefix.'->andReturnUsing(function() { return 1; })'. $simpleSuffix ),
-            array('1 * $a->getFoo() >> throws(123, 321)', $simplePrefix.'->andThrow(123, 321)'. $simpleSuffix ),
-        );
 
         return array_merge($cardinalityExamples, $argumentExamples);
     }

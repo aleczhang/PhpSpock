@@ -64,7 +64,7 @@ class SimpleBlockTest extends \PHPUnit_Framework_TestCase {
 
         eval($block->compileCode());
 
-        $this->assertType('\RuntimeException', $__specification_Exception);
+        $this->assertInstanceOf('\RuntimeException', $__specification_Exception);
         $this->assertEquals('foo', $__specification_Exception->getMessage());
     }
 }

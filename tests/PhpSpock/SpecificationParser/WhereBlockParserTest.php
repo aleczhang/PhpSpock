@@ -54,11 +54,11 @@ class WhereBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\WhereBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock', $result);
 
         $params = $result->getParametrizations();
         $this->assertEquals(1, count($params));
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
 
         $this->assertEquals('$myVar', $params[0]->getLeftExpression());
         $this->assertEquals('array(1,2,3)', $params[0]->getRightExpression());
@@ -75,13 +75,13 @@ class WhereBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\WhereBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock', $result);
 
         $params = $result->getParametrizations();
         $this->assertEquals(3, count($params));
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[2]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[2]);
 
         $this->assertEquals('$myVar', $params[0]->getLeftExpression());
         $this->assertEquals('array(1,2,3)', $params[0]->getRightExpression());
@@ -105,12 +105,12 @@ class WhereBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\WhereBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock', $result);
 
         $params = $result->getParametrizations();
         $this->assertEquals(2, count($params));
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
 
         $this->assertEquals('$sym', $params[0]->getLeftExpression());
         $this->assertEquals('array(\'!\',\'!\',\'4\')', $params[0]->getRightExpression());
@@ -149,15 +149,15 @@ class WhereBlockParserTest extends \PHPUnit_Framework_TestCase {
 
         $result = $this->parser->parse($code);
 
-        $this->assertType('PhpSpock\Specification\WhereBlock', $result);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock', $result);
 
         $params = $result->getParametrizations();
         $this->assertEquals(4, count($params));
 
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[2]);
-        $this->assertType('PhpSpock\Specification\WhereBlock\Parameterization', $params[3]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[0]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[1]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[2]);
+        $this->assertInstanceOf('PhpSpock\Specification\WhereBlock\Parameterization', $params[3]);
 
         $this->assertEquals('$myVar', $params[0]->getLeftExpression());
         $this->assertEquals('array(1,2,3)', $params[0]->getRightExpression());

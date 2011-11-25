@@ -63,6 +63,31 @@ class SpecificationTest extends \PHPUnit_Framework_TestCase {
     /**
      * @test
      */
+    public function eventModifyAssertCountGeneration()
+    {
+        $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')
+                ->shouldReceive('dispatch')->withAnyArgs()->andReturnUsing(
+                    function($eventName, Event $event) {
+
+                        if ($eventName == Event::EVENT_BEFORE_CODE_GENERATION) {
+                            $event->setAttribute('code', '$__specification__assertCount = 0;');
+                        }
+
+                        if ($eventName == Event::EVENT_MODIFY_ASSERTION_COUNT) {
+                            $event->setAttribute('count', $event->getAttribute('count') + 2);
+                        }
+                    }
+                )->mock();
+
+        $spec = new Specification();
+        $spec->setEventDispatcher($ed);
+
+        $this->assertEquals(2, $spec->run());
+    }
+
+    /**
+     * @test
+     */
     public function eventCollectVariables()
     {
         $ed = \Mockery::mock('Symfony\Component\EventDispatcher\EventDispatcher')

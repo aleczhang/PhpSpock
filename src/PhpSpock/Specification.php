@@ -127,6 +127,8 @@ class Specification {
             $stepCounter++;
         }
 
+        $__specification__assertCount = $this->giveEventListenersAChanceToModifyAssertionCount($__specification__assertCount);
+
         $assertionCount = $__specification__assertCount;
         
         if (!is_numeric($assertionCount)) {
@@ -223,6 +225,9 @@ class Specification {
                             }
                             elseif (is_object($value)) {
                                 $__specification__msg .= 'instance of ' . get_class($value);
+                            }
+                            elseif (is_array($value)) {
+                               $__specification__msg .= 'Array with size ' . count($value);
                             }
                             else {
                                 $__specification__msg .= $value;
@@ -382,6 +387,16 @@ class Specification {
 
         $code = $event->getAttribute('code');
         return $code;
+    }
+
+    public function giveEventListenersAChanceToModifyAssertionCount($assertionCount)
+    {
+        $event = new Event();
+        $event->setAttribute('count', $assertionCount);
+
+        $this->getEventDispatcher()->dispatch(Event::EVENT_MODIFY_ASSERTION_COUNT, $event);
+
+        return $event->getAttribute('count');
     }
 
     public function setEndLine($endLine)

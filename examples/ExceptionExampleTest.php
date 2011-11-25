@@ -28,12 +28,12 @@ class ExceptionExampleTest extends IntegrationExampleTestCase
 
     /**
      * @spec
-     * @expectedException Exception
+     * @expectedException RuntimeException
      */
     public function testIndex()
     {
         when:
-        throw new \Exception("test");
+        throw new \RuntimeException("test");
 
         then:
         $this->fail("Exception should be thrown!");
