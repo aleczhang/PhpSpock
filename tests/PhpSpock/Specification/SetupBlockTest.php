@@ -48,7 +48,7 @@ class SetupBlockTest extends \PHPUnit_Framework_TestCase {
             )
         );
 
-        $this->assertEquals('$foo = 1;$foo == 1;', $block->compileCode());
+        $this->assertEquals('$foo = 1;'."\n".'$foo == 1;', $block->compileCode());
     }
 
     /**

@@ -41,6 +41,24 @@ abstract class AbstractParser {
         return $this->filtrateTokens($tokens);
     }
 
+    protected function filtrateCode($code) {
+        $newCode = '';
+        $tokens = $this->tokenizeCode($code);
+        foreach($tokens as $token) {
+            switch ($token[0]) {
+                case T_OPEN_TAG:
+                case T_DOC_COMMENT:
+                case T_COMMENT:
+                    continue(2);
+
+                default:
+                    $newCode .= $token[1];
+            }
+
+        }
+        return $newCode;
+    }
+
     protected function filtrateTokens($tokens)
     {
         $filtredTokens = array();

@@ -35,6 +35,7 @@ class SetupBlockParser extends AbstractParser {
      */
     public function parse($code) {
 
+        $code = $this->filtrateCode($code);
         $lines = $this->splitCodeExpressions($code, false);
 
         $block = new \PhpSpock\Specification\SetupBlock();

@@ -72,6 +72,9 @@ class SetupBlock {
         $code = '';
         foreach($this->expressions as $expr) {
 
+            if (strlen($code) > 0) {
+                 $code .= "\n";
+            }
             $code .= $this->getExpressionTransformer()->transform($expr) . ';';
         }
         return $code;
