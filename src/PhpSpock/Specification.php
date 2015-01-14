@@ -81,7 +81,7 @@ class Specification {
 
     public function run()
     {
-        $stepCounter = 1;
+        $stepCounter = 0;
         $hasMoreVariants = true;
 
         $__specification__assertCount = 0;
