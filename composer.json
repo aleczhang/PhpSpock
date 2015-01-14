@@ -1,0 +1,36 @@
+{
+  "name": "aleczhang/phpspock",
+  "type": "library",
+  "version": "0.1.4-dev",
+  "description": "PhpSpock is a php implementation of Spock testing framework",
+  "keywords": [
+    "spock",
+    "phpunit"
+  ],
+  "homepage": "http://github.com/aleczhang/PhpSpock",
+  "license": "GNU",
+  "authors": [
+    {
+      "name": "Aleksandr Rudakov",
+      "email": "ribozz@gmail.com",
+      "homepage": "https://github.com/ribozz",
+      "role": "Developer"
+    },
+    {
+      "name": "alec",
+      "email": "jun850605@gmail.com",
+      "homepage": "https://github.com/aleczhang",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0",
+    "mockery/mockery": "0.9.3",
+    "symfony/event-dispatcher": "2.6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  }
+}
