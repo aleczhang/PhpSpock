@@ -118,9 +118,12 @@ class SpecificationParser extends AbstractParser {
     private function parseMockVars($tDocComments)
     {
         $vars = array();
-        if (preg_match_all('/@var\s+\$([a-zA-Z0-9_\\\]+)(\s+)?([a-zA-Z0-9_\\\]+)?\s+\*Mock\*\s+/', $tDocComments, $mts)) {
+        if (preg_match_all('/@var\s+\$([a-zA-Z0-9_\\\]+)(\s+)?([a-zA-Z0-9_\\\]+)?\s+\*(Mock|Spy)\*\s+/', $tDocComments, $mts)) {
             foreach ($mts[1] as $index => $varName) {
-                $vars[$varName] = $mts[3][$index];
+                $vars[$varName] = array(
+                    'type' => $mts[4][$index] === 'Mock' ? 'Mock' : 'Spy',
+                    'class' => $mts[3][$index]
+                );
             }
         }
         return $vars;

@@ -359,7 +359,12 @@ class Specification {
         // generate mocks
         foreach ($this->varDeclarations as $varName => $varType) {
             $code .= '
-        $' . $varName . ' = \Mockery::mock(\'' . $varType . '\');';
+        $' . $varName . ' = \Mockery::mock(\'' . $varType['class'] . '\')';
+            if ($varType['type'] === 'Spy') {
+                $code .= '->makePartial();';
+            } else {
+                $code .= ';';
+            }
         }
         if (count($this->varDeclarations)) {
             $code .= '
