@@ -29,7 +29,7 @@ namespace PhpSpock\Specification;
 class WhenThenPair {
 
     /**
-     * @var SimpleBlock
+     * @var WhenBlock
      */
     private $whenBlock;
 
@@ -55,7 +55,7 @@ class WhenThenPair {
     }
 
     /**
-     * @param \PhpSpock\Specification\SimpleBlock $whenBlock
+     * @param \PhpSpock\Specification\WhenBlock $whenBlock
      */
     public function setWhenBlock($whenBlock)
     {
@@ -63,7 +63,7 @@ class WhenThenPair {
     }
 
     /**
-     * @return \PhpSpock\Specification\SimpleBlock
+     * @return \PhpSpock\Specification\WhenBlock
      */
     public function getWhenBlock()
     {

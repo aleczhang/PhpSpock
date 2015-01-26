@@ -30,6 +30,7 @@ use PhpSpock\SpecificationParser\AbstractParser;
 
 use \PhpSpock\SpecificationParser\SetupBlockParser;
 use \PhpSpock\SpecificationParser\SimpleBlockParser;
+use \PhpSpock\SpecificationParser\WhenBlockParser;
 use \PhpSpock\SpecificationParser\WhereBlockParser;
 use \PhpSpock\SpecificationParser\ThenBlockParser;
  
@@ -147,7 +148,7 @@ class SpecificationParser extends AbstractParser {
                 }
 
                 if ($blockName == 'when') {
-                    $parser = new SimpleBlockParser();
+                    $parser = new WhenBlockParser();
                     $currentPair->setWhenBlock($parser->parse($blockCode));
                 }
                 if ($blockName == 'then') {

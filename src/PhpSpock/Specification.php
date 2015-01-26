@@ -53,7 +53,7 @@ class Specification {
     protected $whenThenPairs = array();
     
     /**
-     * @var \PhpSpock\Specification\SimpleBlock
+     * @var \PhpSpock\Specification\SetupBlock
      */
     protected $setupBlock;
 
