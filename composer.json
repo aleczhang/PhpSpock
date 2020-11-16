@@ -1,7 +1,7 @@
 {
   "name": "aleczhang/phpspock",
   "type": "library",
-  "version": "0.1.4-dev",
+  "version": "0.2.0-dev",
   "description": "PhpSpock is a php implementation of Spock testing framework",
   "keywords": [
     "spock",

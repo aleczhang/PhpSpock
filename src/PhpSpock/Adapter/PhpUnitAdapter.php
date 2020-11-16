@@ -26,11 +26,11 @@
 
 namespace PhpSpock\Adapter;
 use PhpSpock\Specification\AssertionException;
- 
+
 class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispatcher\EventSubscriberInterface {
 
     /**
-     * @var \PHPUnit_Framework_TestCase
+     * @var \PHPUnit\Framework\TestCase
      */
     private $test;
     private $class;
@@ -50,17 +50,17 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
             return $phpSpock->run($test);
 
         } catch(AssertionException $e) {
-            throw new \PHPUnit_Framework_ExpectationFailedException(
+            throw new \PHPUnit\Framework\ExpectationFailedException(
                 $e->getMessage()
             );
         }
 
     }
 
-    public static function isSpecification(\PHPUnit_Framework_TestCase $test)
+    public static function isSpecification(\PHPUnit\Framework\TestCase $test)
     {
         if ($test->getName(false) === NULL) {
-            throw new \PHPUnit_Framework_Exception(
+            throw new \PHPUnit\Framework\Exception(
               'PHPUnit_Framework_TestCase::$name must not be NULL.'
             );
         }
@@ -81,10 +81,10 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         return false;
     }
 
-    public static function runTest(\PHPUnit_Framework_TestCase $test)
+    public static function runTest(\PHPUnit\Framework\TestCase $test)
     {
         if ($test->getName(false) === NULL) {
-            throw new \PHPUnit_Framework_Exception(
+            throw new \PHPUnit\Framework\Exception(
               'PHPUnit_Framework_TestCase::$name must not be NULL.'
             );
         }
@@ -114,8 +114,8 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         }
         catch (\Exception $e) {
             $expectedExceptionClass = $test->getExpectedException();
-            if (!$e instanceof \PHPUnit_Framework_IncompleteTest &&
-                !$e instanceof \PHPUnit_Framework_SkippedTest &&
+            if (!$e instanceof \PHPUnit\Framework\IncompleteTest &&
+                !$e instanceof \PHPUnit\Framework\SkippedTest &&
                 is_string($test->getExpectedException()) &&
                 $e instanceof $expectedExceptionClass) {
 
@@ -170,7 +170,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
             $exception = new AssertionException($msg);
         }
 
-//        if ($exception instanceof \PHPUnit_Framework_ExpectationFailedException) {
+//        if ($exception instanceof \PHPUnit\Framework\ExpectationFailedException) {
 //            $exception = new AssertionException($exception->getMessage());
 //        }
 
@@ -185,7 +185,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
     public function onModifyAssertCount(\PhpSpock\Event $event)
     {
         $class = get_class($this->test); //var_dump();
-        
+
         $event->setAttribute('count',
             $event->getAttribute('count') + $class::getCount()
         );
@@ -196,7 +196,7 @@ class PhpUnitAdapter implements \PhpSpock\Adapter, \Symfony\Component\EventDispa
         if(preg_match('/\s+@specDebug\s+/', $this->getMethod()->getDocComment())) {
 
             $this->generateDebugCode($event);
-            
+
 //            $event->setAttribute('result', 0);
         }
     }
